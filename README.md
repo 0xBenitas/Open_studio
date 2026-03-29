@@ -1,1 +1,1 @@
-# Open_Studio
+# Open_Studio🌶️
