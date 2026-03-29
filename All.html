@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🫑 Open Studio</title>
+<title>🌶️ Open Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg0:#06090e;--bg1:#0c1118;--bg2:#131b26;--bg3:#1a2535;--bg4:#223044;
-  --cy:#00ffd2;--cy2:#00c4a0;--mg:#ff2d9b;--yw:#f5e642;--or:#ff6b2b;
-  --pu:#a855f7;--re:#ff3355;--gr:#39ff14;--wh:#dceef5;--dm:#3a4d60;
-  --fmono:'Share Tech Mono',monospace;--forb:'Orbitron',monospace;
+  --bg0:#0a0a0f;--bg1:#0f0f18;--bg2:#151525;--bg3:#1a1a2e;--bg4:#252540;
+  --cy:#00ffd2;--cy2:#00c4a0;--mg:#00c4a0;--yw:#00ffd2;--or:#00c4a0;
+  --pu:#00c4a0;--re:#ff3355;--gr:#00ffd2;--wh:#dceef5;--dm:#3a4d60;
+  --fmono:'JetBrains Mono',monospace;--forb:'JetBrains Mono',monospace;
 }
 *{scrollbar-width:thin;scrollbar-color:var(--bg4) var(--bg1)}
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -21,10 +21,10 @@
 body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11px;height:100vh;overflow:hidden;display:flex;flex-direction:column}
 
 /* HEADER */
-.hdr{display:flex;align-items:center;gap:10px;padding:5px 14px;background:var(--bg1);border-bottom:1px solid var(--bg3);height:48px;flex-shrink:0;flex-wrap:nowrap;overflow:hidden}
+.hdr{display:flex;align-items:center;gap:10px;padding:5px 14px;background:rgba(15,15,24,0.85);border-bottom:1px solid rgba(255,255,255,0.08);height:48px;flex-shrink:0;flex-wrap:nowrap;overflow:hidden;backdrop-filter:blur(10px)}
 .logo{font-family:var(--forb);font-size:14px;font-weight:900;color:var(--cy);letter-spacing:2px;white-space:nowrap;text-shadow:0 0 20px rgba(0,255,210,.3)}
-.logo b{color:var(--mg)}
-.logo .pepper{font-size:18px;margin-right:2px;filter:drop-shadow(0 0 6px rgba(255,45,155,.4))}
+.logo b{color:#ff3355}
+.logo .pepper{font-size:18px;margin-right:2px;filter:drop-shadow(0 0 6px rgba(0,255,210,.4));display:inline-flex;vertical-align:middle}
 .transport{display:flex;gap:5px;align-items:center}
 .tbtn{width:32px;height:32px;border:none;border-radius:5px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .1s;font-family:var(--fmono)}
 .tbtn.play{background:var(--cy);color:var(--bg0)}
@@ -34,9 +34,12 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 .tbtn.rec.on{background:var(--re);color:#fff;animation:recpulse .6s infinite}
 .tbtn:hover{filter:brightness(1.25);transform:scale(1.05)}
 @keyframes recpulse{0%,100%{opacity:1}50%{opacity:.6}}
+.hdr.beat-flash{animation:beatflash .12s ease-out}
+@keyframes beatflash{0%{border-bottom-color:rgba(0,255,210,0.6);background:rgba(0,255,210,0.03)}100%{border-bottom-color:rgba(255,255,255,0.08);background:rgba(15,15,24,0.85)}}
+.bpm-val.downbeat{text-shadow:0 0 20px rgba(0,255,210,.8),0 0 40px rgba(0,255,210,.4)!important}
 .bpm-box{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--bg4);border-radius:6px;padding:4px 10px;cursor:ns-resize}
 .bpm-lbl{font-size:8px;color:var(--dm);letter-spacing:2px}
-.bpm-val{font-family:var(--forb);font-size:22px;font-weight:900;color:var(--yw);min-width:52px;text-align:center;line-height:1;text-shadow:0 0 15px rgba(245,230,66,.4)}
+.bpm-val{font-family:var(--forb);font-size:22px;font-weight:900;color:var(--cy);min-width:52px;text-align:center;line-height:1;text-shadow:0 0 15px rgba(0,255,210,.4)}
 .sep{width:1px;height:28px;background:var(--bg3);flex-shrink:0}
 .hdr-ctrl{display:flex;align-items:center;gap:5px;font-size:9px;color:var(--dm)}
 .hdr-ctrl input[type=range]{accent-color:var(--cy)}
@@ -63,7 +66,7 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 .trk-row:hover{background:var(--bg2)}
 .trk-row.sel{background:var(--bg3)}
 .trk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px currentColor}
-.trk-name{font-size:10px;font-weight:700;letter-spacing:1px;flex:1;cursor:pointer;white-space:nowrap;overflow:hidden}
+.trk-name{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;flex:1;cursor:pointer;white-space:nowrap;overflow:hidden}
 .tmb,.tsl{width:20px;height:15px;background:var(--bg3);border:1px solid var(--bg4);border-radius:2px;font-family:var(--fmono);font-size:7px;cursor:pointer;color:var(--dm);transition:all .1s;flex-shrink:0}
 .tmb:hover,.tsl:hover{color:var(--wh)}
 .tmb.on{background:var(--or);color:#fff;border-color:var(--or)}
@@ -80,7 +83,7 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 .grid-scroll{flex:1;overflow-x:auto;overflow-y:hidden;position:relative}
 .grid-tracks{display:flex;flex-direction:column}
 .grid-trk-row{height:38px;display:flex;border-bottom:1px solid var(--bg2)}
-.step{flex-shrink:0;height:100%;border-right:1px solid rgba(255,255,255,.04);background:var(--bg1);cursor:pointer;transition:background .06s,opacity .06s;position:relative;overflow:hidden}
+.step{flex-shrink:0;height:100%;border:1px solid rgba(255,255,255,0.15);border-radius:3px;background:var(--bg1);cursor:pointer;transition:background .06s,opacity .06s;position:relative;overflow:hidden}
 .step:hover{background:var(--bg3)}
 .step.b4{border-left:1px solid var(--bg4)}
 .step.b8{border-left:2px solid rgba(255,255,255,.12)}
@@ -109,8 +112,8 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 .icon-btn.re:hover{background:var(--re);color:#fff}
 
 /* BOTTOM */
-.bottom{height:190px;flex-shrink:0;display:flex;background:var(--bg1);border-top:1px solid var(--bg3);overflow:hidden}
-.panel{flex:1;padding:8px 10px;border-right:1px solid var(--bg3);display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden}
+.bottom{height:190px;flex-shrink:0;display:flex;background:var(--bg1);border-top:1px solid rgba(255,255,255,0.08);overflow:hidden}
+.panel{flex:1;padding:8px 10px;border-right:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:4px;min-width:0;overflow:hidden}
 .panel:last-child{border-right:none}
 .panel-hdr{font-size:8px;color:var(--cy);letter-spacing:2px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px}
 .panel-hdr span{font-size:8px;color:var(--dm);letter-spacing:1px}
@@ -126,9 +129,11 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 .fxb{padding:2px 6px;background:var(--bg3);border:1px solid var(--bg4);border-radius:3px;color:var(--dm);font-family:var(--fmono);font-size:8px;cursor:pointer;transition:all .1s;letter-spacing:.5px}
 .fxb.on{background:rgba(0,196,160,.15);color:var(--cy);border-color:var(--cy2)}
 .fxb:hover:not(.on){color:var(--wh)}
+.sc-btn.on,.fxb.on,.htab.on,.wb.on,.pat-btn.on{box-shadow:0 0 12px currentColor}
 
 /* SPECTRUM */
 #specCanvas{width:100%;flex:1;display:block;border-radius:3px;background:var(--bg0);min-height:60px}
+#waveCanvas{width:100%;height:50px;flex-shrink:0;display:block;background:var(--bg0);border-top:1px solid rgba(255,255,255,0.08)}
 
 /* ===================== PIANO ROLL ===================== */
 #vpiano{flex-direction:column}
@@ -147,10 +152,10 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 .mix-scroll{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;align-items:stretch;background:var(--bg1)}
 .mix-ch{display:flex;flex-direction:column;align-items:center;padding:10px 6px 8px;border-right:1px solid var(--bg3);background:var(--bg1);width:72px;flex-shrink:0;gap:5px}
 .mix-ch.master{background:var(--bg2);width:84px;border-left:2px solid var(--bg3)}
-.mix-ch-name{font-size:8px;font-weight:700;letter-spacing:1px;text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mix-ch-name{font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-align:center;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mix-fader-area{flex:1;display:flex;gap:5px;align-items:flex-end;justify-content:center;min-height:90px}
 .mix-vu{width:6px;height:90px;background:var(--bg3);border-radius:2px 2px 0 0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
-.mix-vu-bar{width:100%;background:linear-gradient(to top,#39ff14,#f5e642,#ff3355);border-radius:0;transition:height .06s}
+.mix-vu-bar{width:100%;background:linear-gradient(to top,#00c4a0,#00ffd2,#ff3355);border-radius:0;transition:height .06s}
 .mix-fader{writing-mode:vertical-lr;direction:rtl;height:90px;width:20px;accent-color:var(--cy);cursor:pointer}
 .mix-val{font-size:8px;color:var(--dm);font-family:var(--fmono)}
 .mix-btn{padding:2px 4px;background:var(--bg3);border:1px solid var(--bg4);border-radius:2px;font-family:var(--fmono);font-size:7px;color:var(--dm);cursor:pointer;width:100%;text-align:center;transition:all .1s;letter-spacing:.5px}
@@ -190,7 +195,7 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="logo"><span class="pepper">🫑</span> Open <b>Studio</b></div>
+  <div class="logo"><span class="pepper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00ffd2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-1 2-1 3 0 5"/><path d="M10 7c-4 3-7 8-7 12 0 2 1.5 3 3.5 3 1.5 0 3-1 4-2.5"/><path d="M14 7c4 3 7 8 7 12 0 2-1.5 3-3.5 3-1.5 0-3-1-4-2.5"/><circle cx="9" cy="14" r="0.5" fill="#00ffd2"/><circle cx="15" cy="14" r="0.5" fill="#00ffd2"/><line x1="12" y1="10" x2="12" y2="19" stroke-dasharray="2 2"/><line x1="8" y1="16" x2="16" y2="16" stroke-dasharray="2 2" opacity="0.5"/></svg></span> Open <b>Studio</b></div>
   <div class="sep"></div>
   <div class="transport">
     <button class="tbtn play" id="btnPlay" onclick="togglePlay()" title="Play/Pause (Space)">▶</button>
@@ -236,6 +241,7 @@ body{background:var(--bg0);color:var(--wh);font-family:var(--fmono);font-size:11
     <div class="grid-scroll" id="gridScroll">
       <div class="grid-tracks" id="gridTracks"></div>
     </div>
+    <canvas id="waveCanvas"></canvas>
     <div class="vel-strip" id="velStrip"></div>
     <div class="step-ctrl">
       <span style="font-size:8px;color:var(--dm)">STEPS:</span>
@@ -413,13 +419,13 @@ let keyIdx=0,currentKey='Am';
 
 const TRACK_DEFAULTS=[
   {name:'KICK',color:'#00ffd2',wave:'kick',vol:0.9},
-  {name:'HI-HAT',color:'#f5e642',wave:'hat',vol:0.65},
-  {name:'CLAP',color:'#ff2d9b',wave:'clap',vol:0.75},
-  {name:'OPEN HH',color:'#ff9f2b',wave:'openhat',vol:0.5},
-  {name:'BASSLINE',color:'#a855f7',wave:'sawtooth',vol:0.85},
-  {name:'ACID',color:'#ff6b2b',wave:'sawtooth',vol:0.75},
-  {name:'SYNTH 1',color:'#2d7dff',wave:'square',vol:0.65},
-  {name:'SYNTH 2',color:'#39ff14',wave:'triangle',vol:0.55},
+  {name:'HI-HAT',color:'#00e6be',wave:'hat',vol:0.65},
+  {name:'CLAP',color:'#00cca8',wave:'clap',vol:0.75},
+  {name:'OPEN HH',color:'#00b393',wave:'openhat',vol:0.5},
+  {name:'BASSLINE',color:'#009a7e',wave:'sawtooth',vol:0.85},
+  {name:'ACID',color:'#008069',wave:'sawtooth',vol:0.75},
+  {name:'SYNTH 1',color:'#006754',wave:'square',vol:0.65},
+  {name:'SYNTH 2',color:'#004d3f',wave:'triangle',vol:0.55},
 ];
 
 function makePat(steps){return{acts:new Array(steps).fill(false),vels:new Array(steps).fill(0.8),probs:new Array(steps).fill(1)};}
@@ -434,19 +440,7 @@ const TRACKS=TRACK_DEFAULTS.map(d=>({
   sp:{wave:d.wave,cutoff:800,res:5,atk:5,dec:200,sus:60,rel:300,envmod:40,detune:0}
 }));
 
-// Default patterns
-TRACKS[0].patterns[0].acts=[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0].map(Boolean);
-TRACKS[0].patterns[0].vels=[.9,.8,.8,.8,.9,.8,.8,.8,.9,.8,.8,.8,.9,.8,.8,.8];
-TRACKS[1].patterns[0].acts=[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1].map(Boolean);
-TRACKS[1].patterns[0].vels=TRACKS[1].patterns[0].acts.map((_,i)=>i%2===0?.7:.5);
-TRACKS[2].patterns[0].acts=[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0].map(Boolean);
-TRACKS[3].patterns[0].acts=[0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0].map(Boolean);
-TRACKS[4].patterns[0].acts=[1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0].map(Boolean);
-TRACKS[5].patterns[0].acts=[1,1,0,0,1,0,1,0,0,1,0,0,1,0,1,0].map(Boolean);
-const bassNotes=[[0,2],[0,2],[7,2],[7,2],[5,2],[5,2],[3,2],[3,2],[5,2],[5,2],[7,2],[7,2],[3,2],[3,2],[5,2],[7,2]];
-TRACKS[4].noteGrid=bassNotes.map(([n,o])=>({note:n,octave:o,on:true,vel:0.85,len:1}));
-const acidNotes=[[0,2],[3,3],[0,2],[5,3],[7,2],[0,2],[10,2],[0,2],[5,2],[3,2],[0,2],[7,2],[3,2],[0,2],[5,2],[10,2]];
-TRACKS[5].noteGrid=acidNotes.map(([n,o],i)=>({note:n,octave:o,on:TRACKS[5].patterns[0].acts[i],vel:0.8,len:1}));
+// No default patterns — app starts empty
 
 const FX={dist:true,rev:true,dly:true,cho:false,bit:false,pha:false,distAmt:25,revSz:30,revMix:25,dlyT:250,dlyFb:40,compThr:-12,compRat:4};
 const LP={rate:2,depth:30,wave:'sine',target:'cutoff'};
@@ -475,6 +469,7 @@ function initAudio(){
   compressor.connect(analyser);
   analyser.connect(ctx.destination);
   startSpectrum();
+  startWaveform();
 }
 
 function setDistCurve(amt){
@@ -604,6 +599,18 @@ function startStep(){
     const si=currentStep%currentSteps;
     updatePlayhead(si>0?si-1:currentSteps-1);
     // flash visible steps
+    // Beat indicator flash
+    const displaySi=(currentStep-1+currentSteps)%currentSteps;
+    if(displaySi%4===0){
+      const hdr=document.querySelector('.hdr');
+      hdr.classList.remove('beat-flash');
+      void hdr.offsetWidth;
+      hdr.classList.add('beat-flash');
+      if(displaySi===0){
+        const bv=document.getElementById('bpmVal');
+        if(bv){bv.classList.add('downbeat');setTimeout(()=>bv.classList.remove('downbeat'),150);}
+      }
+    }
     TRACKS.forEach((t,ti)=>{
       const patIdx=t.pats.findIndex(p=>p);
       const pat=t.patterns[patIdx<0?0:patIdx];
@@ -978,6 +985,36 @@ function startSpectrum(){
   draw();
 }
 
+/* ==================== WAVEFORM SCOPE ==================== */
+let waveRaf;
+function startWaveform(){
+  const canvas=document.getElementById('waveCanvas');
+  if(!canvas)return;
+  function resize(){canvas.width=canvas.offsetWidth||600;canvas.height=canvas.offsetHeight||50;}
+  resize(); new ResizeObserver(resize).observe(canvas);
+  const cc=canvas.getContext('2d');
+  const buf=new Uint8Array(analyser.fftSize);
+  function draw(){
+    waveRaf=requestAnimationFrame(draw);
+    analyser.getByteTimeDomainData(buf);
+    const w=canvas.width,h=canvas.height;
+    cc.fillStyle='rgba(10,10,15,.85)';cc.fillRect(0,0,w,h);
+    cc.strokeStyle='rgba(0,255,210,0.6)';cc.lineWidth=1.5;
+    cc.beginPath();
+    const sliceW=w/buf.length;
+    for(let i=0;i<buf.length;i++){
+      const v=buf[i]/128.0;
+      const y=(v*h)/2;
+      i===0?cc.moveTo(0,y):cc.lineTo(i*sliceW,y);
+    }
+    cc.stroke();
+    // subtle center line
+    cc.strokeStyle='rgba(255,255,255,0.04)';cc.lineWidth=1;
+    cc.beginPath();cc.moveTo(0,h/2);cc.lineTo(w,h/2);cc.stroke();
+  }
+  draw();
+}
+
 /* ==================== PIANO ROLL ==================== */
 const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const PR_NOTES=[];
@@ -1263,7 +1300,7 @@ function drawKnob(canvas,v,color,valEl){
   const nx=cx+Math.cos(ea)*(r-5),ny=cy+Math.sin(ea)*(r-5);
   cc.beginPath();cc.arc(nx,ny,3.5,0,Math.PI*2);
   cc.fillStyle='#fff';cc.fill();
-  cc.fillStyle='#dceef5';cc.font='bold 13px Share Tech Mono';cc.textAlign='center';cc.textBaseline='middle';
+  cc.fillStyle='#dceef5';cc.font='bold 13px JetBrains Mono';cc.textAlign='center';cc.textBaseline='middle';
   cc.fillText(Math.round(v*100),cx,cy);
   if(valEl) valEl.textContent=Math.round(v*100);
 }
