@@ -1,0 +1,97 @@
+/* ==================== RESET & VARIABLES ==================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg0: #0a0a0f;
+  --bg1: #0f0f18;
+  --bg2: #151525;
+  --bg3: #1a1a2e;
+  --bg4: #252540;
+  --cy: #00ffd2;
+  --cy2: #00c4a0;
+  --mg: #00c4a0;
+  --yw: #00ffd2;
+  --or: #00c4a0;
+  --pu: #00c4a0;
+  --re: #ff3355;
+  --gr: #00ffd2;
+  --wh: #dceef5;
+  --dm: #3a4d60;
+  --fmono: 'JetBrains Mono', monospace;
+  --forb: 'JetBrains Mono', monospace;
+}
+
+/* Scrollbar */
+* { scrollbar-width: thin; scrollbar-color: var(--bg4) var(--bg1); }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg1); }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
+
+body {
+  background: var(--bg0);
+  color: var(--wh);
+  font-family: var(--fmono);
+  font-size: 11px;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== LAYOUT ==================== */
+.main { flex: 1; display: flex; overflow: hidden; position: relative; }
+.view { display: none; flex: 1; overflow: hidden; flex-direction: column; }
+.view.on { display: flex; }
+
+/* ==================== BOTTOM PANELS ==================== */
+.bottom {
+  height: 190px;
+  flex-shrink: 0;
+  display: flex;
+  background: var(--bg1);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.panel {
+  flex: 1;
+  padding: 8px 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+.panel:last-child { border-right: none; }
+
+/* ==================== MODAL ==================== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, .8);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal.on { display: flex; }
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--bg3);
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 280px;
+  max-width: 400px;
+}
+.modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.modal-title { font-family: var(--forb); font-size: 11px; color: var(--cy); letter-spacing: 2px; }
+.modal-close { background: none; border: none; color: var(--dm); font-size: 16px; cursor: pointer; }
+.modal-close:hover { color: var(--wh); }
+
+/* ==================== SEPARATOR ==================== */
+.sep { width: 1px; height: 28px; background: var(--bg3); flex-shrink: 0; }
+
+/* ==================== GLOW ON ACTIVE ==================== */
+.sc-btn.on, .fxb.on, .htab.on, .wb.on, .pat-btn.on { box-shadow: 0 0 12px currentColor; }

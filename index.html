@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo"><span class="pepper"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00ffd2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-1 2-1 3 0 5"/><path d="M10 7c-4 3-7 8-7 12 0 2 1.5 3 3.5 3 1.5 0 3-1 4-2.5"/><path d="M14 7c4 3 7 8 7 12 0 2-1.5 3-3.5 3-1.5 0-3-1-4-2.5"/><circle cx="9" cy="14" r="0.5" fill="#00ffd2"/><circle cx="15" cy="14" r="0.5" fill="#00ffd2"/><line x1="12" y1="10" x2="12" y2="19" stroke-dasharray="2 2"/><line x1="8" y1="16" x2="16" y2="16" stroke-dasharray="2 2" opacity="0.5"/></svg></span> Open <b>Studio</b></div>
+  <div class="sep"></div>
+  <div class="transport">
+    <button class="tbtn play" id="btnPlay" title="Play/Pause (Space)">&#9654;</button>
+    <button class="tbtn stop" id="btnStop" title="Stop">&#9632;</button>
+    <button class="tbtn rec" id="btnRec" title="Arm Record">&#9679;</button>
+  </div>
+  <div class="sep"></div>
+  <div class="bpm-box" title="Drag up/down to change BPM">
+    <div class="bpm-lbl">BPM</div>
+    <div class="bpm-val" id="bpmVal">135</div>
+  </div>
+  <div class="hdr-ctrl">SWING <input type="range" id="swingKnob" min="0" max="80" value="0" style="width:55px"> <span id="swingVal">0</span>%</div>
+  <div class="sep"></div>
+  <button class="key-btn" id="keyDisplay" title="Change musical key/scale">Am &#9658;</button>
+  <div class="hdr-tabs">
+    <div class="htab on" data-view="seq">SEQ</div>
+    <div class="htab" data-view="piano">PIANO ROLL</div>
+    <div class="htab" data-view="mix">MIXER</div>
+    <div class="htab" data-view="live">LIVE</div>
+  </div>
+  <div class="hdr-r">
+    <div class="hdr-ctrl">VOL <input type="range" id="masterVol" min="0" max="100" value="80" style="width:65px"> <span id="mvVal">80</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- ===== SEQUENCER ===== -->
+<div class="view on" id="vseq">
+  <div class="trk-panel">
+    <div class="trk-ph">
+      TRACKS
+      <button class="trk-ph-btn" id="btnAddTrack">+ ADD</button>
+    </div>
+    <div id="trkList"></div>
+  </div>
+  <div class="grid-area">
+    <div class="grid-hdr-wrap">
+      <div class="grid-hdr"><div class="bar-labels" id="barLabels"></div></div>
+      <div class="playhead" id="playhead"></div>
+    </div>
+    <div class="grid-scroll" id="gridScroll">
+      <div class="grid-tracks" id="gridTracks"></div>
+    </div>
+    <canvas id="waveCanvas"></canvas>
+    <div class="vel-strip" id="velStrip"></div>
+    <div class="step-ctrl">
+      <span style="font-size:8px;color:var(--dm)">STEPS:</span>
+      <div class="sc-btn on" data-steps="16">16</div>
+      <div class="sc-btn" data-steps="32">32</div>
+      <div class="sc-btn" data-steps="64">64</div>
+      <div class="sep" style="height:18px"></div>
+      <span style="font-size:8px;color:var(--dm)">PAT:</span>
+      <div id="patBtns" style="display:flex;gap:3px"></div>
+      <div class="sep" style="height:18px"></div>
+      <div class="icon-btn pu" id="btnRandom">&#9860; RANDOM</div>
+      <div class="icon-btn or" id="btnMutate">~ MUTATE</div>
+      <div class="icon-btn re" id="btnClear">&#10005; CLEAR</div>
+      <div class="sep" style="height:18px"></div>
+      <span style="font-size:8px;color:var(--dm)">PROB:</span>
+      <input type="range" id="probKnob" min="0" max="100" value="100" style="width:55px;accent-color:var(--pu)">
+      <span id="probVal" style="font-size:8px;color:var(--pu)">100</span><span style="font-size:8px;color:var(--dm)">%</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PIANO ROLL ===== -->
+<div class="view" id="vpiano">
+  <div class="pr-toolbar">
+    <span style="font-size:8px;color:var(--dm)">TRACK:</span>
+    <select class="pr-sel" id="prTrackSel"></select>
+    <div class="sep" style="height:18px"></div>
+    <button class="sc-btn" id="btnQuantize">QUANTIZE</button>
+    <button class="icon-btn pu" id="btnGenMelody">&#9860; GEN MELODY</button>
+    <div class="sep" style="height:18px"></div>
+    <span style="font-size:8px;color:var(--dm)">SCALE LOCK:</span>
+    <button class="fxb on" id="scaleLockBtn">ON</button>
+    <span style="font-size:8px;color:var(--dm)">GLIDE:</span>
+    <button class="fxb" id="glideBtn">OFF</button>
+    <div class="sep" style="height:18px"></div>
+    <span style="font-size:8px;color:var(--dm)">ZOOM:</span>
+    <input type="range" id="prZoom" min="1" max="5" value="2" step="0.5" style="width:60px;accent-color:var(--cy)">
+    <span style="font-size:8px;color:var(--dm)">NOTE LEN:</span>
+    <select class="pr-sel" id="prNoteLen">
+      <option value="0.5">1/32</option>
+      <option value="1" selected>1/16</option>
+      <option value="2">1/8</option>
+      <option value="4">1/4</option>
+    </select>
+  </div>
+  <div class="pr-body">
+    <div class="pr-keys" id="prKeys"></div>
+    <div class="pr-grid-wrap" id="prGridWrap">
+      <canvas id="prCanvas"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MIXER ===== -->
+<div class="view" id="vmix">
+  <div class="mix-scroll" id="mixChannels"></div>
+</div>
+
+<!-- ===== LIVE ===== -->
+<div class="view" id="vlive">
+  <div>
+    <div class="live-section-title">&#9654; MACRO KNOBS — drag vertical</div>
+    <div class="macro-row" id="macroRow"></div>
+  </div>
+  <div>
+    <div class="live-section-title">&#9654; PATTERN LAUNCHER — click to switch patterns live</div>
+    <div class="pad-grid" id="padGrid"></div>
+  </div>
+  <div>
+    <div class="live-section-title">&#9654; 3-BAND EQ</div>
+    <div class="eq-row" id="eqRow"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- BOTTOM PANELS -->
+<div class="bottom">
+  <!-- SYNTHESIS -->
+  <div class="panel">
+    <div class="panel-hdr">SYNTHESIS <span id="synthTrackName">KICK</span></div>
+    <div class="wave-btns" id="waveBtns">
+      <div class="wb on" data-wave="sawtooth">SAW</div>
+      <div class="wb" data-wave="square">SQ</div>
+      <div class="wb" data-wave="sine">SIN</div>
+      <div class="wb" data-wave="triangle">TRI</div>
+    </div>
+    <div class="param-row"><span class="param-lbl">CUTOFF</span><input type="range" id="sCutoff" min="20" max="20000" value="800"><span class="param-val" id="vCutoff">800</span>Hz</div>
+    <div class="param-row"><span class="param-lbl">RESONANCE</span><input type="range" id="sRes" min="0" max="30" value="5" step="0.5"><span class="param-val" id="vRes">5</span></div>
+    <div class="param-row"><span class="param-lbl">ATTACK</span><input type="range" id="sAtk" min="1" max="800" value="5"><span class="param-val" id="vAtk">5</span>ms</div>
+    <div class="param-row"><span class="param-lbl">DECAY</span><input type="range" id="sDec" min="10" max="3000" value="200"><span class="param-val" id="vDec">200</span>ms</div>
+    <div class="param-row"><span class="param-lbl">SUSTAIN</span><input type="range" id="sSus" min="0" max="100" value="60"><span class="param-val" id="vSus">60</span>%</div>
+    <div class="param-row"><span class="param-lbl">RELEASE</span><input type="range" id="sRel" min="10" max="4000" value="300"><span class="param-val" id="vRel">300</span>ms</div>
+  </div>
+  <!-- LFO -->
+  <div class="panel">
+    <div class="panel-hdr">LFO <span>modulation</span></div>
+    <div class="wave-btns" id="lfoBtns">
+      <div class="wb on" data-lfo-wave="sine">SIN</div>
+      <div class="wb" data-lfo-wave="square">SQ</div>
+      <div class="wb" data-lfo-wave="sawtooth">SAW</div>
+      <div class="wb" data-lfo-wave="triangle">TRI</div>
+    </div>
+    <div class="param-row"><span class="param-lbl">RATE</span><input type="range" id="lfoRate" min="0.05" max="30" value="2" step="0.05"><span class="param-val" id="vLRate">2.0</span>Hz</div>
+    <div class="param-row"><span class="param-lbl">DEPTH</span><input type="range" id="lfoDepth" min="0" max="100" value="30"><span class="param-val" id="vLDepth">30</span>%</div>
+    <div class="param-row"><span class="param-lbl">TARGET</span>
+      <select id="lfoTarget" style="flex:1;background:var(--bg3);border:1px solid var(--bg4);color:var(--wh);font-family:var(--fmono);font-size:9px;padding:2px 4px;border-radius:3px">
+        <option value="cutoff">CUTOFF</option>
+        <option value="pitch">PITCH</option>
+        <option value="pan">PAN</option>
+        <option value="vol">VOL</option>
+      </select>
+    </div>
+    <div class="param-row"><span class="param-lbl">ENV MOD</span><input type="range" id="envMod" min="-100" max="100" value="40"><span class="param-val" id="vEnvMod">40</span></div>
+    <div class="param-row"><span class="param-lbl">DETUNE</span><input type="range" id="sDetune" min="-100" max="100" value="0"><span class="param-val" id="vDetune">0</span>ct</div>
+  </div>
+  <!-- FX CHAIN -->
+  <div class="panel">
+    <div class="panel-hdr">FX CHAIN</div>
+    <div class="fx-row">
+      <div class="fxb on" data-fx="dist">DIST</div>
+      <div class="fxb on" data-fx="rev">REVERB</div>
+      <div class="fxb on" data-fx="dly">DELAY</div>
+      <div class="fxb" data-fx="cho">CHORUS</div>
+      <div class="fxb" data-fx="bit">BITCRUSH</div>
+      <div class="fxb" data-fx="pha">PHASER</div>
+    </div>
+    <div class="param-row"><span class="param-lbl">DIST DRIVE</span><input type="range" id="fxDistAmt" min="0" max="100" value="25"><span class="param-val" id="vDistAmt">25</span></div>
+    <div class="param-row"><span class="param-lbl">REV SIZE</span><input type="range" id="fxRevSz" min="0" max="100" value="30"><span class="param-val" id="vRevSz">30</span></div>
+    <div class="param-row"><span class="param-lbl">REV MIX</span><input type="range" id="fxRevMix" min="0" max="100" value="25"><span class="param-val" id="vRevMix">25</span>%</div>
+    <div class="param-row"><span class="param-lbl">DLY TIME</span><input type="range" id="fxDlyT" min="10" max="1000" value="250"><span class="param-val" id="vDlyT">250</span>ms</div>
+    <div class="param-row"><span class="param-lbl">DLY FDBK</span><input type="range" id="fxDlyFb" min="0" max="95" value="40"><span class="param-val" id="vDlyFb">40</span>%</div>
+  </div>
+  <!-- SIDECHAIN + COMP -->
+  <div class="panel">
+    <div class="panel-hdr">SIDECHAIN + COMP</div>
+    <div class="param-row">
+      <span class="param-lbl">KICK&#8594;BASS SC</span>
+      <button class="fxb on" id="scBtn" style="width:50px">ON</button>
+    </div>
+    <div class="param-row"><span class="param-lbl">SC AMOUNT</span><input type="range" id="scAmt" min="0" max="100" value="70"><span class="param-val" id="vScAmt">70</span>%</div>
+    <div class="param-row"><span class="param-lbl">SC ATTACK</span><input type="range" id="scAtk" min="1" max="100" value="5"><span class="param-val" id="vScAtk">5</span>ms</div>
+    <div class="param-row"><span class="param-lbl">SC RELEASE</span><input type="range" id="scRel" min="20" max="500" value="120"><span class="param-val" id="vScRel">120</span>ms</div>
+    <div class="param-row"><span class="param-lbl">COMP THRS</span><input type="range" id="compThr" min="-60" max="0" value="-12"><span class="param-val" id="vCompThr">-12</span>dB</div>
+    <div class="param-row"><span class="param-lbl">COMP RATIO</span><input type="range" id="compRat" min="1" max="20" value="4"><span class="param-val" id="vCompRat">4</span>:1</div>
+  </div>
+  <!-- SPECTRUM -->
+  <div class="panel" style="min-width:130px;max-width:150px;flex:none">
+    <div class="panel-hdr">ANALYSER</div>
+    <canvas id="specCanvas"></canvas>
+    <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--dm);margin-top:2px"><span>20</span><span>1k</span><span>20k</span></div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
