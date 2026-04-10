@@ -1,6 +1,5 @@
-import { TRACKS, FX, LP, SC, state } from '../state/store.js';
+import { TRACKS, LP, state } from '../state/store.js';
 import { fxParam, toggleFx, toggleSidechain, scParam } from '../audio/fx.js';
-import { setDistCurve } from '../audio/engine.js';
 
 // ==================== SYNTH UI ====================
 export function updateSynthUI() {
@@ -127,11 +126,6 @@ export function initPanels() {
   fxParams.forEach(([id, param]) => {
     document.getElementById(id).addEventListener('input', function () {
       fxParam(param, this.value);
-      const valMap = {
-        distAmt: 'vDistAmt', revSz: 'vRevSz', revMix: 'vRevMix',
-        dlyT: 'vDlyT', dlyFb: 'vDlyFb',
-      };
-      if (valMap[param]) document.getElementById(valMap[param]).textContent = this.value;
     });
   });
 
@@ -156,10 +150,8 @@ export function initPanels() {
   // Compressor params
   document.getElementById('compThr').addEventListener('input', function () {
     fxParam('compThr', this.value);
-    document.getElementById('vCompThr').textContent = this.value;
   });
   document.getElementById('compRat').addEventListener('input', function () {
     fxParam('compRat', this.value);
-    document.getElementById('vCompRat').textContent = this.value;
   });
 }

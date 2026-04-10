@@ -8,12 +8,11 @@ import './styles/live.css';
 import './styles/panels.css';
 
 // ==================== MODULES ====================
-import { TRACKS } from './state/store.js';
+import { TRACKS, state, toggleRec } from './state/store.js';
 import { initHeader, handleTogglePlay, handleStop } from './ui/header.js';
 import { renderTracks, initSequencer } from './ui/sequencer.js';
 import { initPianoRoll } from './ui/piano-roll.js';
 import { initPanels } from './ui/panels.js';
-import { state, toggleRec } from './state/store.js';
 
 // ==================== INIT ====================
 initHeader();
