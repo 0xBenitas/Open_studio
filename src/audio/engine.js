@@ -140,26 +140,33 @@ export function connectFxChain() {
   eqFilters.forEach(f => f.disconnect());
   analyser.disconnect();
 
-  // Build chain: sc → [chorus] → [bitcrusher] → [phaser] → dist → tone → comp → analyser → dest
+  // Build chain: sc → [chorus] → [dist+tone] → [bitcrusher] → [phaser] → comp → eq → analyser → dest
   let current = scGainNode;
 
   // Chorus
   if (FX.cho && chorusDryGain) {
+    const chorusNext = FX.dist ? distNode : distToneFilter;
     current.connect(chorusDryGain);
     current.connect(chorusDelayL);
     current.connect(chorusDelayR);
     chorusDelayL.connect(chorusMerger, 0, 0);
     chorusDelayR.connect(chorusMerger, 0, 1);
     chorusMerger.connect(chorusWetGain);
-    chorusDryGain.connect(distNode);
-    chorusWetGain.connect(distNode);
+    chorusDryGain.connect(chorusNext);
+    chorusWetGain.connect(chorusNext);
+    current = chorusNext;
   } else {
-    current.connect(distNode);
+    if (FX.dist) {
+      current.connect(distNode);
+      current = distNode;
+    }
   }
 
-  // Distortion + tone
-  distNode.connect(distToneFilter);
-  current = distToneFilter;
+  // Distortion + tone (bypass if dist off)
+  if (FX.dist) {
+    distNode.connect(distToneFilter);
+    current = distToneFilter;
+  }
 
   // Bitcrusher
   if (FX.bit && bitcrusherNode) {

@@ -70,7 +70,7 @@ export function triggerTrack(ti, vel, time) {
 
     o.start(time);
     o.stop(time + preset.decay + 0.05);
-    if (SC.on) triggerSidechain(time);
+    if (SC.on && TRACKS.some(tr => tr.sendSc)) triggerSidechain(time);
 
   } else if (s.wave === 'hat' || s.wave === 'openhat') {
     const dur = s.wave === 'hat' ? 0.06 : 0.25;
@@ -204,9 +204,9 @@ export function triggerTrack(ti, vel, time) {
     osc.stop(time + noteLen + rel + 0.15);
   }
 
-  // Route through FX sends
-  if (FX.rev) out.connect(reverbPreDelay);
-  if (FX.dly) out.connect(delayNode);
+  // Route through FX sends (per-track)
+  if (FX.rev && t.sendRev) out.connect(reverbPreDelay);
+  if (FX.dly && t.sendDly) out.connect(delayNode);
   out.connect(masterGain);
   if (FX.rev) reverbGain.connect(masterGain);
   if (FX.dly) delayNode.connect(masterGain);

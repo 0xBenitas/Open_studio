@@ -19,9 +19,9 @@ export function renderMixer() {
       <div class="mix-val" id="fv${ti}">${Math.round(t.vol * 100)}</div>
       <div class="mix-btn${t.muted ? ' on' : ''}" data-mixer-mute="${ti}">M</div>
       <div class="mix-btn${t.soloed ? ' on' : ''}" data-mixer-solo="${ti}">S</div>
-      <div class="mix-btn" data-mixer-fx="rev">REV</div>
-      <div class="mix-btn" data-mixer-fx="dly">DLY</div>
-      ${ti === 4 || ti === 5 ? `<div class="mix-btn sc on" title="Sidechain from kick">SC \u2190 KICK</div>` : ''}
+      <div class="mix-btn${t.sendRev ? ' on' : ''}" data-mixer-fx="rev" data-ti="${ti}">REV</div>
+      <div class="mix-btn${t.sendDly ? ' on' : ''}" data-mixer-fx="dly" data-ti="${ti}">DLY</div>
+      ${!['kick', 'hat', 'clap', 'openhat'].includes(t.sp.wave) ? `<div class="mix-btn sc${t.sendSc ? ' on' : ''}" data-mixer-sc="${ti}" title="Sidechain from kick">SC \u2190 KICK</div>` : ''}
     `;
 
     // Fader
@@ -42,14 +42,30 @@ export function renderMixer() {
       this.classList.toggle('on', TRACKS[ti].soloed);
     });
 
-    // FX toggles
+    // Per-track FX send toggles
     ch.querySelectorAll('[data-mixer-fx]').forEach(btn => {
-      btn.addEventListener('click', () => btn.classList.toggle('on'));
+      btn.addEventListener('click', () => {
+        const tIdx = +btn.dataset.ti;
+        const fx = btn.dataset.mixerFx;
+        if (fx === 'rev') {
+          TRACKS[tIdx].sendRev = !TRACKS[tIdx].sendRev;
+          btn.classList.toggle('on', TRACKS[tIdx].sendRev);
+        } else if (fx === 'dly') {
+          TRACKS[tIdx].sendDly = !TRACKS[tIdx].sendDly;
+          btn.classList.toggle('on', TRACKS[tIdx].sendDly);
+        }
+      });
     });
 
-    // SC toggle
-    const scBtn = ch.querySelector('.mix-btn.sc');
-    if (scBtn) scBtn.addEventListener('click', () => scBtn.classList.toggle('on'));
+    // Per-track SC toggle
+    const scBtn = ch.querySelector('[data-mixer-sc]');
+    if (scBtn) {
+      scBtn.addEventListener('click', () => {
+        const tIdx = +scBtn.dataset.mixerSc;
+        TRACKS[tIdx].sendSc = !TRACKS[tIdx].sendSc;
+        scBtn.classList.toggle('on', TRACKS[tIdx].sendSc);
+      });
+    }
 
     mc.appendChild(ch);
   });

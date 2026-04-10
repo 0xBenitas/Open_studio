@@ -13,6 +13,9 @@ export const TRACKS = TRACK_DEFAULTS.map(d => ({
   soloed: false,
   noteGrid: makeNoteGrid(16),
   kickPreset: d.wave === 'kick' ? 0 : undefined,
+  sendRev: true,
+  sendDly: true,
+  sendSc: d.wave === 'sawtooth' && (d.name === 'BASSLINE' || d.name === 'ACID'),
   sp: {
     wave: d.wave, cutoff: 800, res: 5,
     atk: 5, dec: 200, sus: 60, rel: 300,
@@ -126,7 +129,7 @@ export function exportProject() {
   return {
     tracks: TRACKS.map(t => ({
       name: t.name, vol: t.vol, muted: t.muted, soloed: t.soloed,
-      kickPreset: t.kickPreset,
+      kickPreset: t.kickPreset, sendRev: t.sendRev, sendDly: t.sendDly, sendSc: t.sendSc,
       sp: { ...t.sp },
       patterns: t.patterns.map(p => ({
         acts: [...p.acts], vels: [...p.vels], probs: [...p.probs],
@@ -156,6 +159,9 @@ export function importProject(data) {
       if (td.muted !== undefined) t.muted = td.muted;
       if (td.soloed !== undefined) t.soloed = td.soloed;
       if (td.kickPreset !== undefined) t.kickPreset = td.kickPreset;
+      if (td.sendRev !== undefined) t.sendRev = td.sendRev;
+      if (td.sendDly !== undefined) t.sendDly = td.sendDly;
+      if (td.sendSc !== undefined) t.sendSc = td.sendSc;
       if (td.sp) Object.assign(t.sp, td.sp);
       if (td.patterns) {
         td.patterns.forEach((p, pi) => {

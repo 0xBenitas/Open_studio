@@ -78,7 +78,7 @@ export function fxParam(p, value) {
 export function toggleFx(f) {
   FX[f] = !FX[f];
   // Reconnect FX chain when toggling insert effects
-  if (['cho', 'bit', 'pha'].includes(f)) {
+  if (['dist', 'cho', 'bit', 'pha'].includes(f)) {
     connectFxChain();
   }
   return FX[f];
