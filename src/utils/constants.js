@@ -43,6 +43,12 @@ export const KICK_PRESETS = [
   { name: 'DEEP',   startFreq: 150, midFreq: 45,  endFreq: 25, pitchDecay: 0.15, clickAmt: 0.05, clickFreq: 600,  decay: 0.7,  drive: 0 },
   { name: 'TIGHT',  startFreq: 220, midFreq: 70,  endFreq: 40, pitchDecay: 0.03, clickAmt: 0.3,  clickFreq: 2000, decay: 0.15, drive: 0.1 },
   { name: 'ELECTRO',startFreq: 350, midFreq: 100, endFreq: 50, pitchDecay: 0.05, clickAmt: 0.6,  clickFreq: 5000, decay: 0.25, drive: 0.3 },
+  { name: 'BOOM',   startFreq: 160, midFreq: 50,  endFreq: 35, pitchDecay: 0.10, clickAmt: 0.25, clickFreq: 1200, decay: 0.55, drive: 0.05 },
+  { name: 'GABBER', startFreq: 400, midFreq: 120, endFreq: 40, pitchDecay: 0.03, clickAmt: 0.8,  clickFreq: 5500, decay: 0.28, drive: 0.85 },
+  { name: 'TRAP',   startFreq: 170, midFreq: 50,  endFreq: 28, pitchDecay: 0.14, clickAmt: 0.15, clickFreq: 1500, decay: 0.8,  drive: 0 },
+  { name: 'TECHNO', startFreq: 240, midFreq: 65,  endFreq: 38, pitchDecay: 0.05, clickAmt: 0.35, clickFreq: 2500, decay: 0.3,  drive: 0.2 },
+  { name: 'VINYL',  startFreq: 140, midFreq: 60,  endFreq: 35, pitchDecay: 0.09, clickAmt: 0.08, clickFreq: 500,  decay: 0.4,  drive: 0.08 },
+  { name: 'DNB',    startFreq: 280, midFreq: 85,  endFreq: 50, pitchDecay: 0.02, clickAmt: 0.55, clickFreq: 3500, decay: 0.12, drive: 0.25 },
 ];
 
 export const MACRO_DEFS = [
