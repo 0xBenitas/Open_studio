@@ -145,6 +145,17 @@
       <div class="wb" data-wave="sine">SIN</div>
       <div class="wb" data-wave="triangle">TRI</div>
     </div>
+    <div class="param-row" id="kickPresetRow" style="display:none">
+      <span class="param-lbl">KICK TYPE</span>
+      <div class="wave-btns" id="kickPresetBtns">
+        <div class="wb on" data-kick="0">808</div>
+        <div class="wb" data-kick="1">909</div>
+        <div class="wb" data-kick="2">HARD</div>
+        <div class="wb" data-kick="3">DEEP</div>
+        <div class="wb" data-kick="4">TIGHT</div>
+        <div class="wb" data-kick="5">ELEC</div>
+      </div>
+    </div>
     <div class="param-row"><span class="param-lbl">CUTOFF</span><input type="range" id="sCutoff" min="20" max="20000" value="800"><span class="param-val" id="vCutoff">800</span>Hz</div>
     <div class="param-row"><span class="param-lbl">RESONANCE</span><input type="range" id="sRes" min="0" max="30" value="5" step="0.5"><span class="param-val" id="vRes">5</span></div>
     <div class="param-row"><span class="param-lbl">ATTACK</span><input type="range" id="sAtk" min="1" max="800" value="5"><span class="param-val" id="vAtk">5</span>ms</div>
@@ -186,10 +197,20 @@
       <div class="fxb" data-fx="pha">PHASER</div>
     </div>
     <div class="param-row"><span class="param-lbl">DIST DRIVE</span><input type="range" id="fxDistAmt" min="0" max="100" value="25"><span class="param-val" id="vDistAmt">25</span></div>
+    <div class="param-row"><span class="param-lbl">DIST TONE</span><input type="range" id="fxDistTone" min="0" max="100" value="80"><span class="param-val" id="vDistTone">80</span></div>
     <div class="param-row"><span class="param-lbl">REV SIZE</span><input type="range" id="fxRevSz" min="0" max="100" value="30"><span class="param-val" id="vRevSz">30</span></div>
     <div class="param-row"><span class="param-lbl">REV MIX</span><input type="range" id="fxRevMix" min="0" max="100" value="25"><span class="param-val" id="vRevMix">25</span>%</div>
     <div class="param-row"><span class="param-lbl">DLY TIME</span><input type="range" id="fxDlyT" min="10" max="1000" value="250"><span class="param-val" id="vDlyT">250</span>ms</div>
     <div class="param-row"><span class="param-lbl">DLY FDBK</span><input type="range" id="fxDlyFb" min="0" max="95" value="40"><span class="param-val" id="vDlyFb">40</span>%</div>
+    <div class="param-row"><span class="param-lbl">DLY DAMP</span><input type="range" id="fxDlyDamp" min="0" max="100" value="70"><span class="param-val" id="vDlyDamp">70</span></div>
+    <div class="param-row"><span class="param-lbl">CHO RATE</span><input type="range" id="fxChoRate" min="0.1" max="8" value="1.5" step="0.1"><span class="param-val" id="vChoRate">1.5</span>Hz</div>
+    <div class="param-row"><span class="param-lbl">CHO DEPTH</span><input type="range" id="fxChoDepth" min="0" max="100" value="40"><span class="param-val" id="vChoDepth">40</span></div>
+    <div class="param-row"><span class="param-lbl">CHO MIX</span><input type="range" id="fxChoMix" min="0" max="100" value="50"><span class="param-val" id="vChoMix">50</span>%</div>
+    <div class="param-row"><span class="param-lbl">BIT DEPTH</span><input type="range" id="fxBitDepth" min="2" max="16" value="8"><span class="param-val" id="vBitDepth">8</span>bit</div>
+    <div class="param-row"><span class="param-lbl">BIT RATE</span><input type="range" id="fxBitRate" min="1" max="100" value="50"><span class="param-val" id="vBitRate">50</span></div>
+    <div class="param-row"><span class="param-lbl">PHA RATE</span><input type="range" id="fxPhaRate" min="0.1" max="8" value="0.5" step="0.1"><span class="param-val" id="vPhaRate">0.5</span>Hz</div>
+    <div class="param-row"><span class="param-lbl">PHA DEPTH</span><input type="range" id="fxPhaDepth" min="0" max="100" value="60"><span class="param-val" id="vPhaDepth">60</span></div>
+    <div class="param-row"><span class="param-lbl">PHA FDBK</span><input type="range" id="fxPhaFb" min="0" max="90" value="40"><span class="param-val" id="vPhaFb">40</span>%</div>
   </div>
   <!-- SIDECHAIN + COMP -->
   <div class="panel">

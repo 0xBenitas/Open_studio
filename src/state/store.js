@@ -12,6 +12,7 @@ export const TRACKS = TRACK_DEFAULTS.map(d => ({
   muted: false,
   soloed: false,
   noteGrid: makeNoteGrid(16),
+  kickPreset: d.wave === 'kick' ? 0 : undefined,
   sp: {
     wave: d.wave, cutoff: 800, res: 5,
     atk: 5, dec: 200, sus: 60, rel: 300,
@@ -23,8 +24,11 @@ export const TRACKS = TRACK_DEFAULTS.map(d => ({
 export const FX = {
   dist: true, rev: true, dly: true,
   cho: false, bit: false, pha: false,
-  distAmt: 25, revSz: 30, revMix: 25,
-  dlyT: 250, dlyFb: 40,
+  distAmt: 25, distTone: 80, revSz: 30, revMix: 25,
+  dlyT: 250, dlyFb: 40, dlyDamp: 70,
+  choRate: 1.5, choDepth: 40, choMix: 50,
+  bitDepth: 8, bitRate: 50,
+  phaRate: 0.5, phaDepth: 60, phaFb: 40,
   compThr: -12, compRat: 4,
 };
 

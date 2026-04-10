@@ -36,6 +36,15 @@ export const TRACK_DEFAULTS = [
   { name: 'SYNTH 2', color: '#004d3f', wave: 'triangle', vol: 0.55 },
 ];
 
+export const KICK_PRESETS = [
+  { name: '808',    startFreq: 180, midFreq: 55,  endFreq: 30, pitchDecay: 0.12, clickAmt: 0.1,  clickFreq: 800,  decay: 0.6,  drive: 0 },
+  { name: '909',    startFreq: 250, midFreq: 80,  endFreq: 45, pitchDecay: 0.06, clickAmt: 0.4,  clickFreq: 3000, decay: 0.35, drive: 0.15 },
+  { name: 'HARD',   startFreq: 300, midFreq: 90,  endFreq: 35, pitchDecay: 0.04, clickAmt: 0.7,  clickFreq: 4500, decay: 0.3,  drive: 0.5 },
+  { name: 'DEEP',   startFreq: 150, midFreq: 45,  endFreq: 25, pitchDecay: 0.15, clickAmt: 0.05, clickFreq: 600,  decay: 0.7,  drive: 0 },
+  { name: 'TIGHT',  startFreq: 220, midFreq: 70,  endFreq: 40, pitchDecay: 0.03, clickAmt: 0.3,  clickFreq: 2000, decay: 0.15, drive: 0.1 },
+  { name: 'ELECTRO',startFreq: 350, midFreq: 100, endFreq: 50, pitchDecay: 0.05, clickAmt: 0.6,  clickFreq: 5000, decay: 0.25, drive: 0.3 },
+];
+
 export const MACRO_DEFS = [
   { name: 'ENERGY', sub: 'Filter + Dist', color: 'var(--cy)', val: 50 },
   { name: 'SPACE', sub: 'Reverb + Delay', color: 'var(--pu)', val: 30 },
