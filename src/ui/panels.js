@@ -1,5 +1,6 @@
 import { TRACKS, LP, state } from '../state/store.js';
 import { fxParam, toggleFx, toggleSidechain, scParam } from '../audio/fx.js';
+import { KICK_PRESETS } from '../utils/constants.js';
 
 // ==================== SYNTH UI ====================
 export function updateSynthUI() {
@@ -39,6 +40,18 @@ export function updateSynthUI() {
       (w === 'sawtooth' && ['kick', 'hat', 'clap', 'openhat'].includes(s.wave))
     );
   });
+
+  // Show/hide kick preset row
+  const kickRow = document.getElementById('kickPresetRow');
+  if (kickRow) {
+    kickRow.style.display = s.wave === 'kick' ? 'flex' : 'none';
+    if (s.wave === 'kick') {
+      const presetIdx = t.kickPreset || 0;
+      document.querySelectorAll('#kickPresetBtns .wb').forEach(b => {
+        b.classList.toggle('on', +b.dataset.kick === presetIdx);
+      });
+    }
+  }
 }
 
 export function synthParam(p, el) {
@@ -56,6 +69,17 @@ export function synthParam(p, el) {
 function setWave(w, btn) {
   TRACKS[state.selectedTrack].sp.wave = w;
   document.querySelectorAll('#waveBtns .wb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // Update kick preset visibility
+  const kickRow = document.getElementById('kickPresetRow');
+  if (kickRow) kickRow.style.display = w === 'kick' ? 'flex' : 'none';
+}
+
+function setKickPreset(idx, btn) {
+  const t = TRACKS[state.selectedTrack];
+  if (t.sp.wave !== 'kick') return;
+  t.kickPreset = idx;
+  document.querySelectorAll('#kickPresetBtns .wb').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
 }
 
@@ -100,6 +124,11 @@ export function initPanels() {
     btn.addEventListener('click', () => setWave(btn.dataset.wave, btn));
   });
 
+  // Kick preset buttons
+  document.querySelectorAll('#kickPresetBtns .wb').forEach(btn => {
+    btn.addEventListener('click', () => setKickPreset(+btn.dataset.kick, btn));
+  });
+
   // LFO wave buttons
   document.querySelectorAll('#lfoBtns .wb').forEach(btn => {
     btn.addEventListener('click', () => setLfoWave(btn.dataset.lfoWave, btn));
@@ -120,8 +149,12 @@ export function initPanels() {
 
   // FX params
   const fxParams = [
-    ['fxDistAmt', 'distAmt'], ['fxRevSz', 'revSz'], ['fxRevMix', 'revMix'],
-    ['fxDlyT', 'dlyT'], ['fxDlyFb', 'dlyFb'],
+    ['fxDistAmt', 'distAmt'], ['fxDistTone', 'distTone'],
+    ['fxRevSz', 'revSz'], ['fxRevMix', 'revMix'],
+    ['fxDlyT', 'dlyT'], ['fxDlyFb', 'dlyFb'], ['fxDlyDamp', 'dlyDamp'],
+    ['fxChoRate', 'choRate'], ['fxChoDepth', 'choDepth'], ['fxChoMix', 'choMix'],
+    ['fxBitDepth', 'bitDepth'], ['fxBitRate', 'bitRate'],
+    ['fxPhaRate', 'phaRate'], ['fxPhaDepth', 'phaDepth'], ['fxPhaFb', 'phaFb'],
   ];
   fxParams.forEach(([id, param]) => {
     document.getElementById(id).addEventListener('input', function () {
