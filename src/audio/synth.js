@@ -113,7 +113,17 @@ export function triggerTrack(ti, vel, time) {
     const freq = noteFreq(ng.note + (s.detune || 0) / 100, ng.octave);
     const osc = ctx.createOscillator();
     osc.type = s.wave || 'sawtooth';
-    osc.frequency.value = freq;
+
+    // ── Glide / Portamento ──
+    if (state.glideOn && t._lastFreq && t._lastFreq !== freq) {
+      const glideTime = Math.min(s.atk / 1000, 0.08) || 0.05;
+      osc.frequency.setValueAtTime(t._lastFreq, time);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(freq, 1), time + glideTime);
+    } else {
+      osc.frequency.value = freq;
+    }
+    t._lastFreq = freq;
+
     const filt = ctx.createBiquadFilter();
     filt.type = 'lowpass';
     filt.frequency.value = s.cutoff;
@@ -130,21 +140,66 @@ export function triggerTrack(ti, vel, time) {
     env.gain.setValueAtTime(vel * sus, time + noteLen);
     env.gain.linearRampToValueAtTime(0.0001, time + noteLen + rel);
 
-    if (LP.depth > 0 && LP.target === 'cutoff') {
+    // ── EnvMod: filter cutoff envelope ──
+    const envModAmt = s.envmod / 100;
+    if (Math.abs(envModAmt) > 0.01) {
+      const peak = s.cutoff + envModAmt * (20000 - s.cutoff) * 0.5;
+      const safePeak = Math.max(20, Math.min(20000, peak));
+      const susLevel = s.cutoff + (safePeak - s.cutoff) * sus;
+      filt.frequency.setValueAtTime(s.cutoff, time);
+      filt.frequency.linearRampToValueAtTime(safePeak, time + atk);
+      filt.frequency.linearRampToValueAtTime(susLevel, time + atk + dec);
+      filt.frequency.setValueAtTime(susLevel, time + noteLen);
+      filt.frequency.linearRampToValueAtTime(s.cutoff, time + noteLen + rel);
+    }
+
+    // ── LFO modulation (all targets) ──
+    let outputNode = env; // default routing: filt → env → out
+    if (LP.depth > 0) {
       const lfo = ctx.createOscillator();
       const lg = ctx.createGain();
       lfo.type = LP.wave;
       lfo.frequency.value = LP.rate;
-      lg.gain.value = LP.depth * (s.cutoff / 100);
-      lfo.connect(lg);
-      lg.connect(filt.frequency);
+
+      switch (LP.target) {
+        case 'cutoff':
+          lg.gain.value = LP.depth * (s.cutoff / 100);
+          lfo.connect(lg);
+          lg.connect(filt.frequency);
+          break;
+        case 'pitch':
+          lg.gain.value = LP.depth * freq * 0.02;
+          lfo.connect(lg);
+          lg.connect(osc.frequency);
+          break;
+        case 'vol':
+          lg.gain.value = (LP.depth / 100) * vel * 0.5;
+          lfo.connect(lg);
+          lg.connect(env.gain);
+          break;
+        case 'pan': {
+          const panner = ctx.createStereoPanner();
+          lg.gain.value = LP.depth / 100;
+          lfo.connect(lg);
+          lg.connect(panner.pan);
+          // Insert panner: env → panner → out
+          outputNode = panner;
+          env.connect(panner);
+          break;
+        }
+      }
       lfo.start(time);
       lfo.stop(time + noteLen + rel + 0.1);
     }
 
     osc.connect(filt);
     filt.connect(env);
-    env.connect(out);
+    if (outputNode === env) {
+      env.connect(out);
+    } else {
+      // panner case: env already connected to panner above
+      outputNode.connect(out);
+    }
     osc.start(time);
     osc.stop(time + noteLen + rel + 0.15);
   }

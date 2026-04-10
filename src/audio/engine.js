@@ -40,6 +40,9 @@ export let phaserDryGain = null;
 export let phaserWetGain = null;
 export let phaserOutput = null;
 
+// EQ
+export let eqFilters = [];
+
 export function initAudio() {
   if (ctx) return;
   ctx = new AC();
@@ -101,8 +104,11 @@ export function initAudio() {
   // ── Phaser ──
   buildPhaser();
 
+  // ── 5-Band EQ ──
+  buildEQ();
+
   // ── Master routing ──
-  // master → sidechain → chorus → bitcrusher → phaser → distortion → tone → compressor → analyser → out
+  // master → sidechain → chorus → bitcrusher → phaser → distortion → tone → compressor → EQ → analyser → out
   masterGain.connect(scGainNode);
   connectFxChain();
 
@@ -131,6 +137,7 @@ export function connectFxChain() {
   distNode.disconnect();
   distToneFilter.disconnect();
   compressor.disconnect();
+  eqFilters.forEach(f => f.disconnect());
   analyser.disconnect();
 
   // Build chain: sc → [chorus] → [bitcrusher] → [phaser] → dist → tone → comp → analyser → dest
@@ -181,7 +188,16 @@ export function connectFxChain() {
   }
 
   current.connect(compressor);
-  compressor.connect(analyser);
+  // Route through EQ chain
+  if (eqFilters.length > 0) {
+    compressor.connect(eqFilters[0]);
+    for (let i = 0; i < eqFilters.length - 1; i++) {
+      eqFilters[i].connect(eqFilters[i + 1]);
+    }
+    eqFilters[eqFilters.length - 1].connect(analyser);
+  } else {
+    compressor.connect(analyser);
+  }
   analyser.connect(ctx.destination);
 }
 
@@ -342,6 +358,31 @@ function buildPhaser() {
   // Feedback
   phaserFbGain = ctx.createGain();
   phaserFbGain.gain.value = FX.phaFb / 100 * 0.9;
+}
+
+// ── 5-Band EQ ──
+function buildEQ() {
+  const bands = [
+    { type: 'lowshelf', freq: 200, Q: 0.7, gain: 0 },
+    { type: 'peaking', freq: 800, Q: 0.7, gain: 0 },
+    { type: 'peaking', freq: 2500, Q: 0.7, gain: 0 },
+    { type: 'highshelf', freq: 8000, Q: 0.7, gain: 0 },
+    { type: 'peaking', freq: 14000, Q: 0.5, gain: -3 },
+  ];
+  eqFilters = bands.map(b => {
+    const f = ctx.createBiquadFilter();
+    f.type = b.type;
+    f.frequency.value = b.freq;
+    f.Q.value = b.Q;
+    f.gain.value = b.gain;
+    return f;
+  });
+}
+
+export function setEqBand(index, gainDb) {
+  if (eqFilters[index]) {
+    eqFilters[index].gain.value = gainDb;
+  }
 }
 
 // React to master volume changes

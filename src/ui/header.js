@@ -1,9 +1,11 @@
-import { state, setBpm, setSwing, setMasterVolume, cycleKey, togglePlay, stopPlayback, toggleRec } from '../state/store.js';
+import { state, setBpm, setSwing, setMasterVolume, cycleKey, togglePlay, stopPlayback, toggleRec, saveProject, loadProject, listProjects } from '../state/store.js';
 import { initAudio, ctx } from '../audio/engine.js';
 import { startStep, stopStep, updatePlayhead } from '../audio/scheduler.js';
 import { renderPianoRoll } from './piano-roll.js';
 import { renderMixer, startVU } from './mixer.js';
 import { renderLive } from './live.js';
+import { renderTracks } from './sequencer.js';
+import { updateSynthUI } from './panels.js';
 
 export function initHeader() {
   // Transport buttons
@@ -54,6 +56,31 @@ export function initHeader() {
   document.querySelectorAll('.htab[data-view]').forEach(tab => {
     tab.addEventListener('click', () => showView(tab.dataset.view, tab));
   });
+
+  // Save / Load
+  document.getElementById('btnSave').addEventListener('click', () => {
+    const name = prompt('Project name:', 'My Project');
+    if (name) {
+      saveProject(name);
+      alert('Project "' + name + '" saved!');
+    }
+  });
+  document.getElementById('btnLoad').addEventListener('click', () => {
+    const projects = listProjects();
+    if (projects.length === 0) {
+      alert('No saved projects found.');
+      return;
+    }
+    const name = prompt('Load project:\n\nSaved projects:\n' + projects.map((p, i) => (i + 1) + '. ' + p).join('\n') + '\n\nEnter name:');
+    if (name) {
+      if (loadProject(name)) {
+        refreshUI();
+        alert('Project "' + name + '" loaded!');
+      } else {
+        alert('Project "' + name + '" not found.');
+      }
+    }
+  });
 }
 
 export function handleTogglePlay() {
@@ -84,6 +111,17 @@ export function handleStop() {
 function handleToggleRec() {
   toggleRec();
   document.getElementById('btnRec').classList.toggle('on', state.isRec);
+}
+
+function refreshUI() {
+  document.getElementById('bpmVal').textContent = state.bpm;
+  document.getElementById('swingKnob').value = state.swingAmt;
+  document.getElementById('swingVal').textContent = state.swingAmt;
+  document.getElementById('masterVol').value = Math.round(state.masterVolume * 100);
+  document.getElementById('mvVal').textContent = Math.round(state.masterVolume * 100);
+  document.getElementById('keyDisplay').textContent = state.currentKey + ' \u25B8';
+  renderTracks();
+  updateSynthUI();
 }
 
 function showView(v, btn) {

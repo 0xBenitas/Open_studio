@@ -1,7 +1,7 @@
 import { TRACKS, state } from '../state/store.js';
 import { MACRO_DEFS } from '../utils/constants.js';
 import { drawKnob } from '../visualization/knob.js';
-import { initAudio } from '../audio/engine.js';
+import { initAudio, setEqBand } from '../audio/engine.js';
 import { renderTracks } from './sequencer.js';
 import { synthParam } from './panels.js';
 import { fxParam } from '../audio/fx.js';
@@ -125,11 +125,16 @@ export function renderLive() {
     { f: 'LOW', v: 50 }, { f: 'MID', v: 50 },
     { f: 'MID-H', v: 50 }, { f: 'HIGH', v: 50 }, { f: 'AIR', v: 40 },
   ];
-  bands.forEach(b => {
+  bands.forEach((b, bi) => {
     const w = document.createElement('div');
     w.className = 'eq-bar-wrap';
     w.innerHTML = `<input class="eq-bar-input" type="range" orient="vertical" min="0" max="100" value="${b.v}" title="${b.f} EQ">
       <div class="eq-bar-label">${b.f}</div>`;
+    const input = w.querySelector('input');
+    input.addEventListener('input', () => {
+      const gainDb = (+input.value - 50) * 0.3; // -15dB to +15dB
+      setEqBand(bi, gainDb);
+    });
     eq.appendChild(w);
   });
 }
