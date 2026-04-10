@@ -65,31 +65,6 @@ body {
 }
 .panel:last-child { border-right: none; }
 
-/* ==================== MODAL ==================== */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, .8);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-}
-.modal.on { display: flex; }
-.modal-box {
-  background: var(--bg2);
-  border: 1px solid var(--bg3);
-  border-radius: 8px;
-  padding: 16px;
-  min-width: 280px;
-  max-width: 400px;
-}
-.modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.modal-title { font-family: var(--forb); font-size: 11px; color: var(--cy); letter-spacing: 2px; }
-.modal-close { background: none; border: none; color: var(--dm); font-size: 16px; cursor: pointer; }
-.modal-close:hover { color: var(--wh); }
-
 /* ==================== SEPARATOR ==================== */
 .sep { width: 1px; height: 28px; background: var(--bg3); flex-shrink: 0; }
 

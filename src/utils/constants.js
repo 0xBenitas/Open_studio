@@ -14,7 +14,7 @@ export const SCALES = {
 
 export const KEY_NAMES = Object.keys(SCALES);
 
-export const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 export const CELL_H = 14;
 
