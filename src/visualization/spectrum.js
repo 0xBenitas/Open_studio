@@ -32,3 +32,10 @@ export function startSpectrum() {
   }
   draw();
 }
+
+export function stopSpectrum() {
+  if (specRaf) {
+    cancelAnimationFrame(specRaf);
+    specRaf = null;
+  }
+}

@@ -91,7 +91,7 @@ export function renderMixer() {
 }
 
 export function startVU() {
-  clearInterval(vuTimer);
+  stopVU();
   vuTimer = setInterval(() => {
     TRACKS.forEach((t, ti) => {
       const bar = document.getElementById('vu' + ti);
@@ -106,4 +106,11 @@ export function startVU() {
       bm.style.height = h + '%';
     }
   }, 70);
+}
+
+export function stopVU() {
+  if (vuTimer) {
+    clearInterval(vuTimer);
+    vuTimer = null;
+  }
 }

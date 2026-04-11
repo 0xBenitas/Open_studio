@@ -42,3 +42,10 @@ export function startWaveform() {
   }
   draw();
 }
+
+export function stopWaveform() {
+  if (waveRaf) {
+    cancelAnimationFrame(waveRaf);
+    waveRaf = null;
+  }
+}
