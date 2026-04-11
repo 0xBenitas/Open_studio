@@ -1,31 +1,33 @@
 /* ==================== BOTTOM PANEL COMPONENTS ==================== */
 .panel-hdr {
-  font-size: 8px;
+  font-size: var(--fs-xs);
   color: var(--cy);
   letter-spacing: 2px;
   font-weight: 700;
   margin-bottom: 3px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--bg3);
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.panel-hdr span { font-size: 8px; color: var(--dm); letter-spacing: 1px; }
+.panel-hdr span { font-size: var(--fs-2xs); color: var(--dm); letter-spacing: 1px; }
 
-.param-row { display: flex; align-items: center; gap: 5px; height: 18px; }
-.param-lbl { font-size: 8px; color: var(--dm); width: 76px; flex-shrink: 0; letter-spacing: .5px; }
-.param-val { font-size: 8px; color: var(--cy); width: 32px; text-align: right; flex-shrink: 0; }
+.param-row { display: flex; align-items: center; gap: 6px; height: 20px; }
+.param-lbl { font-size: var(--fs-2xs); color: var(--dm); width: 76px; flex-shrink: 0; letter-spacing: .5px; }
+.param-val { font-size: var(--fs-2xs); color: var(--cy); width: 32px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .param-row input[type=range] { flex: 1; accent-color: var(--cy); height: 12px; cursor: pointer; }
 
 .wave-btns { display: flex; gap: 3px; flex-wrap: wrap; }
 .wb {
   width: 32px;
-  height: 20px;
+  height: 22px;
   background: var(--bg3);
   border: 1px solid var(--bg4);
   border-radius: 3px;
   color: var(--dm);
   font-family: var(--fmono);
-  font-size: 8px;
+  font-size: var(--fs-2xs);
   cursor: pointer;
   transition: all .1s;
   display: flex;
@@ -35,15 +37,15 @@
 .wb.on { background: var(--cy2); color: var(--bg0); border-color: var(--cy); }
 .wb:hover:not(.on) { color: var(--wh); }
 
-.fx-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 2px; }
+.fx-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 4px; }
 .fxb {
-  padding: 2px 6px;
+  padding: 3px 7px;
   background: var(--bg3);
   border: 1px solid var(--bg4);
   border-radius: 3px;
   color: var(--dm);
   font-family: var(--fmono);
-  font-size: 8px;
+  font-size: var(--fs-2xs);
   cursor: pointer;
   transition: all .1s;
   letter-spacing: .5px;
