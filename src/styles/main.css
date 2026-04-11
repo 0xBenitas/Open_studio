@@ -9,17 +9,26 @@
   --bg4: #252540;
   --cy: #00ffd2;
   --cy2: #00c4a0;
-  --mg: #00c4a0;
-  --yw: #00ffd2;
-  --or: #00c4a0;
-  --pu: #00c4a0;
+  --mg: #ff44cc;
+  --yw: #ffd600;
+  --or: #ff8a00;
+  --pu: #a855f7;
   --re: #ff3355;
-  --gr: #00ffd2;
+  --gr: #22dd88;
   --wh: #dceef5;
   --dm: #3a4d60;
   --fmono: 'JetBrains Mono', monospace;
   --forb: 'JetBrains Mono', monospace;
+  --fs-2xs: 8px;
+  --fs-xs: 9px;
+  --fs-sm: 10px;
+  --fs-md: 11px;
+  --fs-lg: 13px;
 }
+
+.ctrl-lbl { font-size: var(--fs-2xs); color: var(--dm); }
+
+:focus-visible { outline: 1px solid var(--cy); outline-offset: 1px; }
 
 /* Scrollbar */
 * { scrollbar-width: thin; scrollbar-color: var(--bg4) var(--bg1); }
@@ -45,7 +54,7 @@ body {
 
 /* ==================== BOTTOM PANELS ==================== */
 .bottom {
-  height: 190px;
+  height: 210px;
   flex-shrink: 0;
   display: flex;
   background: var(--bg1);
@@ -55,11 +64,11 @@ body {
 
 .panel {
   flex: 1;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
   overflow: hidden;
 }
@@ -68,5 +77,46 @@ body {
 /* ==================== SEPARATOR ==================== */
 .sep { width: 1px; height: 28px; background: var(--bg3); flex-shrink: 0; }
 
+/* ==================== RANGE INPUTS ==================== */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 16px;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--cy);
+  margin-top: -4px;
+  box-shadow: 0 0 6px rgba(0, 255, 210, 0.4);
+  transition: box-shadow 0.15s;
+}
+input[type=range]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 12px rgba(0, 255, 210, 0.6);
+}
+input[type=range]::-moz-range-track {
+  height: 4px;
+  background: var(--bg4);
+  border-radius: 2px;
+  border: none;
+}
+input[type=range]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--cy);
+  border: none;
+  box-shadow: 0 0 6px rgba(0, 255, 210, 0.4);
+}
+
 /* ==================== GLOW ON ACTIVE ==================== */
-.sc-btn.on, .fxb.on, .htab.on, .wb.on, .pat-btn.on { box-shadow: 0 0 12px currentColor; }
+.sc-btn.on, .fxb.on, .htab.on, .wb.on, .pat-btn.on { box-shadow: 0 0 8px currentColor, inset 0 0 4px rgba(255, 255, 255, 0.1); }

@@ -27,13 +27,13 @@ for (let o = 7; o >= 1; o--) {
 
 export const TRACK_DEFAULTS = [
   { name: 'KICK', color: '#00ffd2', wave: 'kick', vol: 0.9 },
-  { name: 'HI-HAT', color: '#00e6be', wave: 'hat', vol: 0.65 },
-  { name: 'CLAP', color: '#00cca8', wave: 'clap', vol: 0.75 },
-  { name: 'OPEN HH', color: '#00b393', wave: 'openhat', vol: 0.5 },
-  { name: 'BASSLINE', color: '#009a7e', wave: 'sawtooth', vol: 0.85 },
-  { name: 'ACID', color: '#008069', wave: 'sawtooth', vol: 0.75 },
-  { name: 'SYNTH 1', color: '#006754', wave: 'square', vol: 0.65 },
-  { name: 'SYNTH 2', color: '#004d3f', wave: 'triangle', vol: 0.55 },
+  { name: 'HI-HAT', color: '#ffd600', wave: 'hat', vol: 0.65 },
+  { name: 'CLAP', color: '#ff8a00', wave: 'clap', vol: 0.75 },
+  { name: 'OPEN HH', color: '#ff44cc', wave: 'openhat', vol: 0.5 },
+  { name: 'BASSLINE', color: '#a855f7', wave: 'sawtooth', vol: 0.85 },
+  { name: 'ACID', color: '#22dd88', wave: 'sawtooth', vol: 0.75 },
+  { name: 'SYNTH 1', color: '#00b4ff', wave: 'square', vol: 0.65 },
+  { name: 'SYNTH 2', color: '#ff3355', wave: 'triangle', vol: 0.55 },
 ];
 
 export const KICK_PRESETS = [

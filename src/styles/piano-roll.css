@@ -41,7 +41,7 @@
   align-items: center;
   justify-content: flex-end;
   padding-right: 4px;
-  font-size: 7px;
+  font-size: var(--fs-2xs);
   flex-shrink: 0;
   border-bottom: 1px solid rgba(255, 255, 255, .03);
   letter-spacing: .5px;
