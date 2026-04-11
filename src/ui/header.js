@@ -2,7 +2,7 @@ import { state, setBpm, setSwing, setMasterVolume, cycleKey, togglePlay, stopPla
 import { initAudio, ctx } from '../audio/engine.js';
 import { startStep, stopStep, updatePlayhead } from '../audio/scheduler.js';
 import { renderPianoRoll } from './piano-roll.js';
-import { renderMixer, startVU } from './mixer.js';
+import { renderMixer, startVU, stopVU } from './mixer.js';
 import { renderLive } from './live.js';
 import { renderTracks } from './sequencer.js';
 import { updateSynthUI } from './panels.js';
@@ -27,6 +27,37 @@ export function initHeader() {
     bpmEl.textContent = state.bpm;
   });
   document.addEventListener('mouseup', () => { bpmDrag.on = false; });
+
+  // BPM double-click to type
+  bpmEl.addEventListener('dblclick', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    bpmDrag.on = false;
+    const current = state.bpm;
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = 60;
+    input.max = 220;
+    input.value = current;
+    input.className = 'bpm-input';
+    input.style.cssText = 'width:50px;height:100%;background:var(--bg0);color:var(--cy);border:1px solid var(--cy);font-family:var(--fmono);font-size:18px;text-align:center;outline:none;border-radius:3px;';
+    bpmEl.textContent = '';
+    bpmEl.appendChild(input);
+    input.focus();
+    input.select();
+
+    function commit() {
+      const v = Math.max(60, Math.min(220, Math.round(+input.value) || current));
+      setBpm(v);
+      bpmEl.textContent = state.bpm;
+    }
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', e2 => {
+      if (e2.code === 'Enter') { e2.preventDefault(); input.blur(); }
+      if (e2.code === 'Escape') { input.value = current; input.blur(); }
+      e2.stopPropagation();
+    });
+  });
 
   // Swing
   document.getElementById('swingKnob').addEventListener('input', function () {
@@ -125,6 +156,9 @@ function refreshUI() {
 }
 
 function showView(v, btn) {
+  // Clean up previous view resources
+  stopVU();
+
   document.querySelectorAll('.view').forEach(el => el.classList.remove('on'));
   document.querySelectorAll('.htab').forEach(b => b.classList.remove('on'));
   document.getElementById('v' + v).classList.add('on');

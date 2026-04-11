@@ -106,18 +106,19 @@
 .playhead {
   position: absolute;
   top: 0; bottom: -1px;
-  width: 2px;
+  width: 3px;
   background: var(--cy);
-  box-shadow: 0 0 8px var(--cy);
+  box-shadow: 0 0 10px var(--cy), 0 0 4px var(--cy);
   pointer-events: none;
   z-index: 20;
   left: -4px;
   transition: left .04s linear;
+  will-change: left;
 }
 
 .grid-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; position: relative; }
 .grid-tracks { display: flex; flex-direction: column; }
-.grid-trk-row { height: 38px; display: flex; border-bottom: 1px solid var(--bg2); }
+.grid-trk-row { height: 38px; display: flex; border-bottom: 1px solid var(--bg2); contain: layout; }
 
 .step {
   flex-shrink: 0;
@@ -129,6 +130,7 @@
   transition: background .06s, opacity .06s;
   position: relative;
   overflow: hidden;
+  contain: layout style paint;
 }
 .step:hover { background: var(--bg3); }
 .step.b4 { border-left: 1px solid var(--bg4); }

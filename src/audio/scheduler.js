@@ -1,27 +1,51 @@
 import { ctx } from './engine.js';
 import { triggerTrack } from './synth.js';
 import { TRACKS, state } from '../state/store.js';
+import { getPatIdx } from '../utils/helpers.js';
 
 const lookahead = 25;
 const scheduleAheadTime = 0.1;
 let nextStepTime = 0;
 let stepTimer = null;
-let flashQueue = [];
+
+// ==================== CACHED DOM REFS ====================
+let cachedProbEl = null;
+let cachedHdr = null;
+let cachedBpmVal = null;
+let cachedPlayhead = null;
+let cachedGridScroll = null;
+let cachedStepW = 0;
+
+function cacheSchedulerDOM() {
+  cachedProbEl = document.getElementById('probKnob');
+  cachedHdr = document.querySelector('.hdr');
+  cachedBpmVal = document.getElementById('bpmVal');
+  cachedPlayhead = document.getElementById('playhead');
+  cachedGridScroll = document.getElementById('gridScroll');
+  cachedStepW = computeStepW();
+}
+
+export function invalidateStepWCache() {
+  cachedStepW = 0;
+}
+
+function computeStepW() {
+  const gw = cachedGridScroll?.offsetWidth || document.getElementById('gridScroll')?.offsetWidth || 600;
+  return Math.max(22, Math.min(50, Math.floor(gw / state.currentSteps)));
+}
 
 function scheduler() {
   const spb = 60 / state.bpm;
   const s16 = spb / 4;
   while (nextStepTime < ctx.currentTime + scheduleAheadTime) {
     const si = state.currentStep % state.currentSteps;
-    const probEl = document.getElementById('probKnob');
-    const probVal = probEl ? +probEl.value / 100 : 1;
+    const probVal = cachedProbEl ? +cachedProbEl.value / 100 : 1;
     const soloOn = TRACKS.some(t => t.soloed);
 
     TRACKS.forEach((t, ti) => {
       if (t.muted) return;
       if (soloOn && !t.soloed) return;
-      const patIdx = t.pats.findIndex(p => p);
-      const pat = t.patterns[patIdx < 0 ? 0 : patIdx];
+      const pat = t.patterns[getPatIdx(t)];
       if (si < pat.acts.length && pat.acts[si]) {
         const prob = (pat.probs[si] || 1) * probVal;
         if (Math.random() < prob) {
@@ -31,13 +55,13 @@ function scheduler() {
       }
     });
 
-    flashQueue.push({ si, time: nextStepTime });
     nextStepTime += s16;
     state.currentStep++;
   }
 }
 
 export function startStep() {
+  cacheSchedulerDOM();
   nextStepTime = ctx.currentTime + 0.05;
   stepTimer = setInterval(() => {
     scheduler();
@@ -45,35 +69,33 @@ export function startStep() {
     const si = state.currentStep % state.currentSteps;
     updatePlayhead(si > 0 ? si - 1 : state.currentSteps - 1);
 
-    // Beat indicator flash
+    // Beat indicator flash (no forced reflow)
     const displaySi = (state.currentStep - 1 + state.currentSteps) % state.currentSteps;
-    if (displaySi % 4 === 0) {
-      const hdr = document.querySelector('.hdr');
-      hdr.classList.remove('beat-flash');
-      void hdr.offsetWidth;
-      hdr.classList.add('beat-flash');
-      if (displaySi === 0) {
-        const bv = document.getElementById('bpmVal');
-        if (bv) {
-          bv.classList.add('downbeat');
-          setTimeout(() => bv.classList.remove('downbeat'), 150);
-        }
+    if (displaySi % 4 === 0 && cachedHdr) {
+      cachedHdr.classList.remove('beat-flash');
+      requestAnimationFrame(() => {
+        if (cachedHdr) cachedHdr.classList.add('beat-flash');
+      });
+      if (displaySi === 0 && cachedBpmVal) {
+        cachedBpmVal.classList.add('downbeat');
+        setTimeout(() => { if (cachedBpmVal) cachedBpmVal.classList.remove('downbeat'); }, 150);
       }
     }
 
-    // Flash playing steps
+    // Flash playing steps - batched
+    const prev = (state.currentStep - 1 + state.currentSteps) % state.currentSteps;
+    const flashEls = [];
     TRACKS.forEach((t, ti) => {
-      const patIdx = t.pats.findIndex(p => p);
-      const pat = t.patterns[patIdx < 0 ? 0 : patIdx];
-      const prev = (state.currentStep - 1 + state.currentSteps) % state.currentSteps;
+      const pat = t.patterns[getPatIdx(t)];
       if (pat.acts[prev]) {
         const el = document.getElementById(`s${ti}_${prev}`);
-        if (el) {
-          el.classList.add('playing');
-          setTimeout(() => el.classList.remove('playing'), 80);
-        }
+        if (el) flashEls.push(el);
       }
     });
+    if (flashEls.length > 0) {
+      flashEls.forEach(el => el.classList.add('playing'));
+      setTimeout(() => flashEls.forEach(el => el.classList.remove('playing')), 80);
+    }
   }, lookahead);
 }
 
@@ -83,16 +105,17 @@ export function stopStep() {
 }
 
 function updatePlayhead(si) {
-  const ph = document.getElementById('playhead');
-  if (!ph) return;
-  if (si < 0) { ph.style.left = '-4px'; return; }
-  const sw = getStepW();
-  ph.style.left = (si * sw) + 'px';
+  if (!cachedPlayhead) cachedPlayhead = document.getElementById('playhead');
+  if (!cachedPlayhead) return;
+  if (si < 0) { cachedPlayhead.style.left = '-4px'; return; }
+  if (!cachedStepW) cachedStepW = computeStepW();
+  cachedPlayhead.style.left = (si * cachedStepW) + 'px';
 }
 
 function getStepW() {
-  const gw = document.getElementById('gridScroll')?.offsetWidth || 600;
-  return Math.max(22, Math.min(50, Math.floor(gw / state.currentSteps)));
+  if (cachedStepW) return cachedStepW;
+  cachedStepW = computeStepW();
+  return cachedStepW;
 }
 
 export { getStepW, updatePlayhead };

@@ -1,6 +1,6 @@
 import { TRACKS, state } from '../state/store.js';
 import { SCALES, PR_NOTES, CELL_H } from '../utils/constants.js';
-import { isBlack } from '../utils/helpers.js';
+import { isBlack, getPatIdx } from '../utils/helpers.js';
 import { initAudio, ctx } from '../audio/engine.js';
 import { triggerTrack } from '../audio/synth.js';
 import { renderTracks } from './sequencer.js';
@@ -71,8 +71,7 @@ export function renderPianoRoll() {
   }
 
   // Draw notes
-  const patIdx = t.pats.findIndex(p => p);
-  const pat = t.patterns[patIdx < 0 ? 0 : patIdx];
+  const pat = t.patterns[getPatIdx(t)];
   for (let s = 0; s < steps; s++) {
     if (!pat.acts[s]) continue;
     const ng = t.noteGrid[s];
@@ -122,8 +121,7 @@ export function renderPianoRoll() {
     if (si < 0 || si >= steps || ri < 0 || ri >= PR_NOTES.length) return;
     const n = PR_NOTES[ri];
     if (state.scaleLock && !scale.includes(n.note)) return;
-    const patIdx2 = t.pats.findIndex(p => p);
-    const pat2 = t.patterns[patIdx2 < 0 ? 0 : patIdx2];
+    const pat2 = t.patterns[getPatIdx(t)];
     const noteLen = +document.getElementById('prNoteLen').value;
     const already = pat2.acts[si] && t.noteGrid[si] && t.noteGrid[si].note === n.note && t.noteGrid[si].octave === n.octave;
     pat2.acts[si] = !already;
@@ -143,8 +141,7 @@ export function prQuantize() {
 export function prGenMelody() {
   const ti = +document.getElementById('prTrackSel').value;
   const t = TRACKS[ti];
-  const patIdx = t.pats.findIndex(p => p);
-  const pat = t.patterns[patIdx < 0 ? 0 : patIdx];
+  const pat = t.patterns[getPatIdx(t)];
   const scale = SCALES[state.currentKey] || [0, 2, 3, 5, 7, 8, 10];
   const octaves = [2, 3, 3, 4];
   const noteLen = +document.getElementById('prNoteLen').value;

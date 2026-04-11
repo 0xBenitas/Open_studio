@@ -19,3 +19,8 @@ export function makeNoteGrid(steps) {
 export function isBlack(n) {
   return [1, 3, 6, 8, 10].includes(n);
 }
+
+export function getPatIdx(t) {
+  const idx = t.pats.indexOf(true);
+  return idx < 0 ? 0 : idx;
+}
