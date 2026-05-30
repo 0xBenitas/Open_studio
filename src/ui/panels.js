@@ -1,6 +1,6 @@
 import { TRACKS, LP, state } from '../state/store.js';
 import { fxParam, toggleFx, toggleSidechain, scParam } from '../audio/fx.js';
-import { KICK_PRESETS } from '../utils/constants.js';
+import { KICK_PRESETS, CLAP_PRESETS, HAT_PRESETS, OPENHAT_PRESETS } from '../utils/constants.js';
 
 // ==================== SYNTH UI ====================
 export function updateSynthUI() {
@@ -41,17 +41,24 @@ export function updateSynthUI() {
     );
   });
 
-  // Show/hide kick preset row
-  const kickRow = document.getElementById('kickPresetRow');
-  if (kickRow) {
-    kickRow.style.display = s.wave === 'kick' ? 'flex' : 'none';
-    if (s.wave === 'kick') {
-      const presetIdx = t.kickPreset || 0;
-      document.querySelectorAll('#kickPresetBtns .wb').forEach(b => {
-        b.classList.toggle('on', +b.dataset.kick === presetIdx);
+  // Show/hide drum preset rows
+  const presetRows = [
+    { id: 'kickPresetRow', wave: 'kick', btnsId: 'kickPresetBtns', attr: 'kick', key: 'kickPreset' },
+    { id: 'clapPresetRow', wave: 'clap', btnsId: 'clapPresetBtns', attr: 'clap', key: 'clapPreset' },
+    { id: 'hatPresetRow', wave: 'hat', btnsId: 'hatPresetBtns', attr: 'hat', key: 'hatPreset' },
+    { id: 'openhatPresetRow', wave: 'openhat', btnsId: 'openhatPresetBtns', attr: 'openhat', key: 'hatPreset' },
+  ];
+  presetRows.forEach(({ id, wave, btnsId, attr, key }) => {
+    const row = document.getElementById(id);
+    if (!row) return;
+    row.style.display = s.wave === wave ? 'flex' : 'none';
+    if (s.wave === wave) {
+      const idx = t[key] || 0;
+      document.querySelectorAll(`#${btnsId} .wb`).forEach(b => {
+        b.classList.toggle('on', +b.dataset[attr] === idx);
       });
     }
-  }
+  });
 }
 
 export function synthParam(p, el) {
@@ -70,9 +77,12 @@ function setWave(w, btn) {
   TRACKS[state.selectedTrack].sp.wave = w;
   document.querySelectorAll('#waveBtns .wb').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  // Update kick preset visibility
-  const kickRow = document.getElementById('kickPresetRow');
-  if (kickRow) kickRow.style.display = w === 'kick' ? 'flex' : 'none';
+  // Update drum preset visibility
+  const rows = { kickPresetRow: 'kick', clapPresetRow: 'clap', hatPresetRow: 'hat', openhatPresetRow: 'openhat' };
+  Object.entries(rows).forEach(([id, wave]) => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = w === wave ? 'flex' : 'none';
+  });
 }
 
 function setKickPreset(idx, btn) {
@@ -80,6 +90,13 @@ function setKickPreset(idx, btn) {
   if (t.sp.wave !== 'kick') return;
   t.kickPreset = idx;
   document.querySelectorAll('#kickPresetBtns .wb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function setDrumPreset(key, idx, btnsSelector, dataAttr, btn) {
+  const t = TRACKS[state.selectedTrack];
+  t[key] = idx;
+  document.querySelectorAll(`${btnsSelector} .wb`).forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
 }
 
@@ -127,6 +144,21 @@ export function initPanels() {
   // Kick preset buttons
   document.querySelectorAll('#kickPresetBtns .wb').forEach(btn => {
     btn.addEventListener('click', () => setKickPreset(+btn.dataset.kick, btn));
+  });
+
+  // Clap preset buttons
+  document.querySelectorAll('#clapPresetBtns .wb').forEach(btn => {
+    btn.addEventListener('click', () => setDrumPreset('clapPreset', +btn.dataset.clap, '#clapPresetBtns', 'clap', btn));
+  });
+
+  // Hat preset buttons
+  document.querySelectorAll('#hatPresetBtns .wb').forEach(btn => {
+    btn.addEventListener('click', () => setDrumPreset('hatPreset', +btn.dataset.hat, '#hatPresetBtns', 'hat', btn));
+  });
+
+  // Open hat preset buttons
+  document.querySelectorAll('#openhatPresetBtns .wb').forEach(btn => {
+    btn.addEventListener('click', () => setDrumPreset('hatPreset', +btn.dataset.openhat, '#openhatPresetBtns', 'openhat', btn));
   });
 
   // LFO wave buttons

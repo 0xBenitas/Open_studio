@@ -13,6 +13,8 @@ export const TRACKS = TRACK_DEFAULTS.map(d => ({
   soloed: false,
   noteGrid: makeNoteGrid(16),
   kickPreset: d.wave === 'kick' ? 0 : undefined,
+  clapPreset: d.wave === 'clap' ? 0 : undefined,
+  hatPreset: (d.wave === 'hat' || d.wave === 'openhat') ? 0 : undefined,
   sendRev: true,
   sendDly: true,
   sendSc: d.wave === 'sawtooth' && (d.name === 'BASSLINE' || d.name === 'ACID'),

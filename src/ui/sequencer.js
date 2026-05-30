@@ -5,6 +5,7 @@ import { triggerTrack } from '../audio/synth.js';
 import { getStepW } from '../audio/scheduler.js';
 import { updateSynthUI } from './panels.js';
 import { pushUndo } from '../utils/history.js';
+import { KICK_PRESETS, CLAP_PRESETS, HAT_PRESETS, OPENHAT_PRESETS } from '../utils/constants.js';
 
 // ==================== CACHED DOM REFS ====================
 let elTrkList, elGridTracks, elBarLabels, elVelStrip;
@@ -377,6 +378,127 @@ export function addTrack() {
   renderTracks();
 }
 
+// ==================== INSTRUMENT PICKER ====================
+let pickerEl = null;
+
+const INSTRUMENT_CATEGORIES = [
+  { name: 'KICKS', icon: '⬤', wave: 'kick', presets: KICK_PRESETS, presetKey: 'kickPreset', color: '#00ffd2' },
+  { name: 'CLAPS', icon: '✋', wave: 'clap', presets: CLAP_PRESETS, presetKey: 'clapPreset', color: '#ff8a00' },
+  { name: 'HI-HATS', icon: '▲', wave: 'hat', presets: HAT_PRESETS, presetKey: 'hatPreset', color: '#ffd600' },
+  { name: 'OPEN HH', icon: '◇', wave: 'openhat', presets: OPENHAT_PRESETS, presetKey: 'hatPreset', color: '#ff44cc' },
+  { name: 'SYNTHS', icon: '♪', items: [
+    { name: 'SAW', wave: 'sawtooth', color: '#a855f7' },
+    { name: 'SQUARE', wave: 'square', color: '#00b4ff' },
+    { name: 'SINE', wave: 'sine', color: '#22dd88' },
+    { name: 'TRIANGLE', wave: 'triangle', color: '#ff3355' },
+  ]},
+];
+
+function createPicker() {
+  pickerEl = document.createElement('div');
+  pickerEl.className = 'inst-picker';
+  pickerEl.id = 'instPicker';
+
+  INSTRUMENT_CATEGORIES.forEach(cat => {
+    const catDiv = document.createElement('div');
+    catDiv.className = 'inst-cat';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'inst-cat-hdr';
+    hdr.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.name}`;
+    catDiv.appendChild(hdr);
+
+    const grid = document.createElement('div');
+    grid.className = 'inst-cat-grid';
+
+    if (cat.presets) {
+      // Drum category with presets
+      cat.presets.forEach((preset, idx) => {
+        const item = document.createElement('div');
+        item.className = 'inst-item';
+        item.textContent = preset.name;
+        item.dataset.wave = cat.wave;
+        item.dataset.presetKey = cat.presetKey;
+        item.dataset.presetIdx = idx;
+        item.dataset.color = cat.color;
+        item.dataset.instName = preset.name;
+        grid.appendChild(item);
+      });
+    } else if (cat.items) {
+      // Synth category
+      cat.items.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'inst-item';
+        item.textContent = s.name;
+        item.dataset.wave = s.wave;
+        item.dataset.color = s.color;
+        item.dataset.instName = s.name;
+        grid.appendChild(item);
+      });
+    }
+
+    catDiv.appendChild(grid);
+    pickerEl.appendChild(catDiv);
+  });
+
+  // Handle clicks on items
+  pickerEl.addEventListener('click', e => {
+    const item = e.target.closest('.inst-item');
+    if (!item) return;
+    const ti = +pickerEl.dataset.trackIdx;
+    const t = TRACKS[ti];
+    const wave = item.dataset.wave;
+    const color = item.dataset.color;
+
+    t.sp.wave = wave;
+    t.color = color;
+    t.name = item.dataset.instName;
+
+    if (item.dataset.presetKey) {
+      t[item.dataset.presetKey] = +item.dataset.presetIdx;
+    }
+
+    closePicker();
+    renderTracks();
+  });
+
+  document.body.appendChild(pickerEl);
+
+  // Close on outside click
+  document.addEventListener('mousedown', e => {
+    if (pickerEl && pickerEl.classList.contains('open') && !pickerEl.contains(e.target) && !e.target.closest('.trk-name')) {
+      closePicker();
+    }
+  });
+}
+
+function openPicker(ti, anchorEl) {
+  if (!pickerEl) createPicker();
+  const t = TRACKS[ti];
+  pickerEl.dataset.trackIdx = ti;
+
+  // Highlight current instrument
+  pickerEl.querySelectorAll('.inst-item').forEach(item => {
+    let isActive = false;
+    if (item.dataset.presetKey) {
+      isActive = item.dataset.wave === t.sp.wave && +item.dataset.presetIdx === (t[item.dataset.presetKey] || 0);
+    } else {
+      isActive = item.dataset.wave === t.sp.wave && !['kick', 'clap', 'hat', 'openhat'].includes(t.sp.wave);
+    }
+    item.classList.toggle('active', isActive);
+  });
+
+  // Position near the track name
+  const rect = anchorEl.getBoundingClientRect();
+  pickerEl.style.left = (rect.right + 8) + 'px';
+  pickerEl.style.top = Math.min(rect.top, window.innerHeight - 440) + 'px';
+  pickerEl.classList.add('open');
+}
+
+function closePicker() {
+  if (pickerEl) pickerEl.classList.remove('open');
+}
+
 // ==================== EVENT DELEGATION ====================
 function initDelegation() {
   cacheDom();
@@ -406,7 +528,12 @@ function initDelegation() {
   // Track panel: delegated events
   elTrkList.addEventListener('click', e => {
     const nameEl = e.target.closest('.trk-name');
-    if (nameEl) { selectTrack(+nameEl.dataset.track); return; }
+    if (nameEl) {
+      const ti = +nameEl.dataset.track;
+      selectTrack(ti);
+      openPicker(ti, nameEl);
+      return;
+    }
     const muteBtn = e.target.closest('.tmb');
     if (muteBtn) { e.stopPropagation(); toggleMute(+muteBtn.dataset.mute); return; }
     const soloBtn = e.target.closest('.tsl');

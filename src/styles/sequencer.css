@@ -227,3 +227,62 @@
 .icon-btn.or:hover { background: var(--or); color: #fff; }
 .icon-btn.re { background: var(--bg3); border: 1px solid var(--re); color: var(--re); }
 .icon-btn.re:hover { background: var(--re); color: #fff; }
+
+/* ==================== INSTRUMENT PICKER ==================== */
+.inst-picker {
+  position: fixed;
+  z-index: 1000;
+  background: var(--bg1);
+  border: 1px solid var(--bg4);
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+  width: 320px;
+  max-height: 420px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg4) transparent;
+  padding: 6px;
+  display: none;
+}
+.inst-picker.open { display: block; }
+.inst-picker::-webkit-scrollbar { width: 5px; }
+.inst-picker::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+.inst-cat {
+  margin-bottom: 4px;
+}
+.inst-cat-hdr {
+  font-family: var(--fmono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--dm);
+  padding: 4px 6px 3px;
+  background: var(--bg2);
+  border-radius: 3px;
+  margin-bottom: 3px;
+  cursor: default;
+}
+.inst-cat-hdr .cat-icon { margin-right: 5px; }
+.inst-cat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 0 2px 4px;
+}
+.inst-item {
+  padding: 3px 6px;
+  background: var(--bg3);
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: var(--dm);
+  font-family: var(--fmono);
+  font-size: 8px;
+  cursor: pointer;
+  transition: all .1s;
+  letter-spacing: .5px;
+  min-width: 34px;
+  text-align: center;
+}
+.inst-item:hover { color: var(--wh); background: var(--bg4); }
+.inst-item.active { background: var(--cy2); color: var(--bg0); border-color: var(--cy); }

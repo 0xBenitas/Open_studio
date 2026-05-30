@@ -1,6 +1,6 @@
 import { ctx, masterGain, reverbNode, reverbPreDelay, delayNode, reverbGain, scGainNode } from './engine.js';
 import { TRACKS, FX, LP, SC, state } from '../state/store.js';
-import { KICK_PRESETS } from '../utils/constants.js';
+import { KICK_PRESETS, CLAP_PRESETS, HAT_PRESETS, OPENHAT_PRESETS } from '../utils/constants.js';
 import { noteFreq } from '../utils/helpers.js';
 
 export function triggerTrack(ti, vel, time) {
@@ -73,41 +73,133 @@ export function triggerTrack(ti, vel, time) {
     if (SC.on && TRACKS.some(tr => tr.sendSc)) triggerSidechain(time);
 
   } else if (s.wave === 'hat' || s.wave === 'openhat') {
-    const dur = s.wave === 'hat' ? 0.06 : 0.25;
+    const presets = s.wave === 'hat' ? HAT_PRESETS : OPENHAT_PRESETS;
+    const preset = presets[t.hatPreset || 0] || presets[0];
+    const dur = preset.dur;
+
+    // ── Noise layer ──
     const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
     const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    for (let i = 0; i < d.length; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * (preset.decay / (ctx.sampleRate * dur))));
+    }
     const src = ctx.createBufferSource();
     src.buffer = buf;
     const hpf = ctx.createBiquadFilter();
     hpf.type = 'highpass';
-    hpf.frequency.value = 7000;
+    hpf.frequency.value = preset.hpf;
+    hpf.Q.value = preset.Q;
+    const lpf = ctx.createBiquadFilter();
+    lpf.type = 'lowpass';
+    lpf.frequency.value = preset.tone;
     const g = ctx.createGain();
     g.gain.setValueAtTime(vel * 0.7, time);
     g.gain.exponentialRampToValueAtTime(0.001, time + dur);
     src.connect(hpf);
-    hpf.connect(g);
+    hpf.connect(lpf);
+    lpf.connect(g);
     g.connect(out);
     src.start(time);
     src.stop(time + dur + 0.01);
+
+    // ── Metallic oscillator layer ──
+    if (preset.metalAmt > 0 && preset.metalFreqs.length > 0) {
+      preset.metalFreqs.forEach(f => {
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.value = f;
+        const mg = ctx.createGain();
+        mg.gain.setValueAtTime(vel * preset.metalAmt * 0.15, time);
+        mg.gain.exponentialRampToValueAtTime(0.001, time + dur * 0.8);
+        const mhpf = ctx.createBiquadFilter();
+        mhpf.type = 'highpass';
+        mhpf.frequency.value = preset.hpf;
+        osc.connect(mhpf);
+        mhpf.connect(mg);
+        mg.connect(out);
+        osc.start(time);
+        osc.stop(time + dur + 0.01);
+      });
+    }
+
   } else if (s.wave === 'clap') {
-    const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.18), ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / 800);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const bpf = ctx.createBiquadFilter();
-    bpf.type = 'bandpass';
-    bpf.frequency.value = 1100;
-    bpf.Q.value = 2;
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(vel, time);
-    g.gain.exponentialRampToValueAtTime(0.001, time + 0.18);
-    src.connect(bpf);
-    bpf.connect(g);
-    g.connect(out);
-    src.start(time);
-    src.stop(time + 0.2);
+    const preset = CLAP_PRESETS[t.clapPreset || 0] || CLAP_PRESETS[0];
+    const dur = preset.dur;
+    const numLayers = preset.layers;
+
+    for (let layer = 0; layer < numLayers; layer++) {
+      const layerTime = time + layer * preset.spread;
+      const layerDur = dur - layer * preset.spread;
+      if (layerDur <= 0) break;
+
+      const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * layerDur), ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.exp(-i / preset.decay);
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      const bpf = ctx.createBiquadFilter();
+      bpf.type = 'bandpass';
+      bpf.frequency.value = preset.freq;
+      bpf.Q.value = preset.Q;
+
+      let lastNode;
+
+      // ── Drive (saturation) ──
+      if (preset.drive > 0.01) {
+        const ws = ctx.createWaveShaper();
+        const n = 256;
+        const curve = new Float32Array(n);
+        const k = preset.drive * 12;
+        for (let i = 0; i < n; i++) {
+          const x = i * 2 / n - 1;
+          curve[i] = x * (k + 1) / (1 + k * Math.abs(x));
+        }
+        ws.curve = curve;
+        bpf.connect(ws);
+        lastNode = ws;
+      } else {
+        lastNode = bpf;
+      }
+
+      const g = ctx.createGain();
+      const layerVel = vel * (1 - layer * 0.1); // slight fade per layer
+      g.gain.setValueAtTime(layerVel / numLayers, layerTime);
+      g.gain.exponentialRampToValueAtTime(0.001, layerTime + layerDur);
+
+      src.connect(bpf);
+      lastNode.connect(g);
+      g.connect(out);
+      src.start(layerTime);
+      src.stop(layerTime + layerDur + 0.01);
+    }
+
+    // ── Body layer (low-end thump) ──
+    if (preset.body > 0.05) {
+      const bodyDur = dur * 0.6;
+      const bodyBuf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * bodyDur), ctx.sampleRate);
+      const bd = bodyBuf.getChannelData(0);
+      for (let i = 0; i < bd.length; i++) {
+        bd[i] = (Math.random() * 2 - 1) * Math.exp(-i / (preset.decay * 0.5));
+      }
+      const bodySrc = ctx.createBufferSource();
+      bodySrc.buffer = bodyBuf;
+      const bodyLpf = ctx.createBiquadFilter();
+      bodyLpf.type = 'lowpass';
+      bodyLpf.frequency.value = 300;
+      bodyLpf.Q.value = 1;
+      const bodyGain = ctx.createGain();
+      bodyGain.gain.setValueAtTime(vel * preset.body * 0.6, time);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, time + bodyDur);
+      bodySrc.connect(bodyLpf);
+      bodyLpf.connect(bodyGain);
+      bodyGain.connect(out);
+      bodySrc.start(time);
+      bodySrc.stop(time + bodyDur + 0.01);
+    }
+
   } else {
     const ng = t.noteGrid[state.currentStep % state.currentSteps] || { note: 0, octave: 3 };
     const freq = noteFreq(ng.note + (s.detune || 0) / 100, ng.octave);
