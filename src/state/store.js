@@ -27,7 +27,7 @@ export const TRACKS = TRACK_DEFAULTS.map(d => ({
 
 // ==================== FX STATE ====================
 export const FX = {
-  dist: true, rev: true, dly: true,
+  dist: true, rev: false, dly: false,
   cho: false, bit: false, pha: false,
   distAmt: 25, distTone: 80, revSz: 30, revMix: 25,
   dlyT: 250, dlyFb: 40, dlyDamp: 70,

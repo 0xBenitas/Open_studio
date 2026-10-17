@@ -18,7 +18,7 @@ let cachedStepW = 0;
 
 function cacheSchedulerDOM() {
   cachedProbEl = document.getElementById('probKnob');
-  cachedHdr = document.querySelector('.hdr');
+  cachedHdr = document.querySelector('.topbar');
   cachedBpmVal = document.getElementById('bpmVal');
   cachedPlayhead = document.getElementById('playhead');
   cachedGridScroll = document.getElementById('gridScroll');
@@ -104,12 +104,21 @@ export function stopStep() {
   stepTimer = null;
 }
 
+let lastPh = -1;
+function clearPlayhead() {
+  if (lastPh < 0) return;
+  for (let ti = 0; ti < TRACKS.length; ti++) {
+    document.getElementById(`s${ti}_${lastPh}`)?.classList.remove('playhead');
+  }
+  lastPh = -1;
+}
 function updatePlayhead(si) {
-  if (!cachedPlayhead) cachedPlayhead = document.getElementById('playhead');
-  if (!cachedPlayhead) return;
-  if (si < 0) { cachedPlayhead.style.left = '-4px'; return; }
-  if (!cachedStepW) cachedStepW = computeStepW();
-  cachedPlayhead.style.left = (si * cachedStepW) + 'px';
+  clearPlayhead();
+  if (si < 0) return;
+  for (let ti = 0; ti < TRACKS.length; ti++) {
+    document.getElementById(`s${ti}_${si}`)?.classList.add('playhead');
+  }
+  lastPh = si;
 }
 
 function getStepW() {

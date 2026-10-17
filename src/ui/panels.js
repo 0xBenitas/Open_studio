@@ -9,6 +9,25 @@ export function updateSynthUI() {
   const synthName = document.getElementById('synthTrackName');
   if (synthName) synthName.textContent = t.name;
 
+  // Drawer header: track colour dot + waveform pill
+  const TRK_VARS = ['--trk-kick', '--trk-hat', '--trk-clap', '--trk-openhh', '--trk-bass', '--trk-acid', '--trk-syn1', '--trk-syn2'];
+  const dotVar = `var(${TRK_VARS[state.selectedTrack] || '--accent'})`;
+  const selDot = document.getElementById('selDot');
+  if (selDot) selDot.style.background = dotVar;
+  const selWaveDot = document.getElementById('selWaveDot');
+  if (selWaveDot) selWaveDot.style.background = dotVar;
+  const waveLbl = ({ sawtooth: 'SAW', square: 'SQ', sine: 'SIN', triangle: 'TRI', kick: 'KICK', clap: 'CLAP', hat: 'HAT', openhat: 'OPEN HH' })[s.wave] || (s.wave || '').toUpperCase();
+  const selWaveLbl = document.getElementById('selWaveLbl');
+  if (selWaveLbl) selWaveLbl.textContent = waveLbl;
+
+  // Mobile soundbar (ouvre le bottom-sheet)
+  const sbDot = document.getElementById('sbDot');
+  if (sbDot) sbDot.style.background = dotVar;
+  const sbName = document.getElementById('sbName');
+  if (sbName) sbName.textContent = t.name;
+  const sbDesc = document.getElementById('sbDesc');
+  if (sbDesc) sbDesc.textContent = `${waveLbl} · cutoff ${s.cutoff} Hz`;
+
   const map = {
     sCutoff: s.cutoff, sRes: s.res,
     sAtk: s.atk, sDec: s.dec,
@@ -114,8 +133,33 @@ function setLfoWave(w, btn) {
   btn.classList.add('on');
 }
 
+// ==================== DRAWER TABS (Synthèse / LFO / FX / Sidechain) ====================
+function initDrawerTabs() {
+  const ptabs = document.getElementById('ptabs');
+  if (!ptabs) return;
+  ptabs.addEventListener('click', e => {
+    const b = e.target.closest('button[data-ptab]');
+    if (!b) return;
+    ptabs.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.params .ptab-panel').forEach(p => { p.hidden = p.dataset.panel !== b.dataset.ptab; });
+  });
+}
+
+// ==================== MOBILE BOTTOM-SHEET ====================
+function initSheet() {
+  const app = document.querySelector('.app');
+  if (!app) return;
+  const open = () => app.classList.add('sheet-open');
+  const close = () => app.classList.remove('sheet-open');
+  document.getElementById('soundbarOpen')?.addEventListener('click', open);
+  document.getElementById('sheetClose')?.addEventListener('click', close);
+  document.getElementById('seqScrim')?.addEventListener('click', close);
+}
+
 // ==================== INIT PANELS ====================
 export function initPanels() {
+  initDrawerTabs();
+  initSheet();
   // Synth params
   const synthParams = [
     ['sCutoff', 'cutoff'], ['sRes', 'res'],

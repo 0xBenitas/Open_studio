@@ -1,5 +1,7 @@
 // ==================== STYLES ====================
 import './styles/main.css';
+import './styles/tokens.css';
+import './styles/app.css';
 import './styles/header.css';
 import './styles/sequencer.css';
 import './styles/piano-roll.css';
