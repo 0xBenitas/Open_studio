@@ -1,63 +1,43 @@
-/* ==================== BOTTOM PANEL COMPONENTS ==================== */
-.panel-hdr {
-  font-size: var(--fs-xs);
-  color: var(--cy);
-  letter-spacing: 2px;
-  font-weight: 700;
-  margin-bottom: 3px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--bg3);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.panel-hdr span { font-size: var(--fs-2xs); color: var(--dm); letter-spacing: 1px; }
+/* ============================================================
+   OPEN STUDIO — Atomes du tiroir de réglages (refonte « calme »)
+   Réutilise les ids/classes câblés par panels.js (.wb, .fxb, #scBtn…).
+   ============================================================ */
 
-.param-row { display: flex; align-items: center; gap: 6px; height: 20px; }
-.param-lbl { font-size: var(--fs-2xs); color: var(--dm); width: 76px; flex-shrink: 0; letter-spacing: .5px; }
-.param-val { font-size: var(--fs-2xs); color: var(--cy); width: 32px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-.param-row input[type=range] { flex: 1; accent-color: var(--cy); height: 12px; cursor: pointer; }
-
-.wave-btns { display: flex; gap: 3px; flex-wrap: wrap; }
-.preset-row { flex-wrap: nowrap; }
-.preset-scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--bg4) transparent; padding-bottom: 2px; }
-.preset-scroll::-webkit-scrollbar { height: 4px; }
-.preset-scroll::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
-.preset-scroll .wb { flex-shrink: 0; min-width: 36px; font-size: 7px; }
+/* --- wave / preset buttons (.wb) --- */
 .wb {
-  width: 32px;
-  height: 22px;
-  background: var(--bg3);
-  border: 1px solid var(--bg4);
-  border-radius: 3px;
-  color: var(--dm);
-  font-family: var(--fmono);
-  font-size: var(--fs-2xs);
-  cursor: pointer;
-  transition: all .1s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  appearance: none; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink-3);
+  font-family: var(--font-mono); font-size: var(--t-micro); font-weight: var(--fw-med); letter-spacing: .03em;
+  padding: var(--s-3) var(--s-4); border-radius: var(--r-sm);
+  transition: all var(--dur) var(--ease); white-space: nowrap; text-align: center;
 }
-.wb.on { background: var(--cy2); color: var(--bg0); border-color: var(--cy); }
-.wb:hover:not(.on) { color: var(--wh); }
+.wb:hover { color: var(--ink); background: var(--bg-hover); }
+.wb.on { background: var(--accent-dim); border-color: var(--accent-line); color: var(--accent-bright); box-shadow: none; }
 
-.fx-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 4px; }
+/* drum preset rows : scroll horizontal */
+.preset-row { display: flex; flex-direction: column; }
+.preset-scroll { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 4px; }
+.preset-scroll .wb { flex: 0 0 auto; min-width: 42px; }
+
+/* --- fx toggles + sidechain button (.fxb) --- */
 .fxb {
-  padding: 3px 7px;
-  background: var(--bg3);
-  border: 1px solid var(--bg4);
-  border-radius: 3px;
-  color: var(--dm);
-  font-family: var(--fmono);
-  font-size: var(--fs-2xs);
-  cursor: pointer;
-  transition: all .1s;
-  letter-spacing: .5px;
+  appearance: none; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg-raised); color: var(--ink-3);
+  font-family: var(--font-mono); font-size: var(--t-micro); font-weight: var(--fw-med); letter-spacing: .03em;
+  padding: var(--s-3) var(--s-4); border-radius: var(--r-sm);
+  transition: all var(--dur) var(--ease); white-space: nowrap;
 }
-.fxb.on { background: rgba(0, 196, 160, .15); color: var(--cy); border-color: var(--cy2); }
-.fxb:hover:not(.on) { color: var(--wh); }
+.fxb:hover { color: var(--ink); background: var(--bg-hover); }
+.fxb.on { background: var(--accent-dim); border-color: var(--accent-line); color: var(--accent-bright); box-shadow: none; }
+.fx-row { display: flex; flex-wrap: wrap; gap: 4px; }
 
-/* SPECTRUM & WAVEFORM */
-#specCanvas { width: 100%; flex: 1; display: block; border-radius: 3px; background: var(--bg0); min-height: 60px; }
-#waveCanvas { width: 100%; height: 50px; flex-shrink: 0; display: block; background: var(--bg0); border-top: 1px solid rgba(255, 255, 255, 0.08); }
+/* select (LFO target) */
+.psel {
+  appearance: none; cursor: pointer; width: 100%;
+  background: var(--bg-raised); border: 1px solid var(--line); color: var(--ink);
+  font-family: var(--font-mono); font-size: var(--t-value); padding: var(--s-3) var(--s-4); border-radius: var(--r-sm);
+}
+
+/* Kill the legacy neon glow inside the redesigned shell */
+.params .wb.on, .params .fxb.on, .viewnav .htab.on { box-shadow: none !important; }
+.viewnav .htab.on { box-shadow: var(--shadow-1) !important; }

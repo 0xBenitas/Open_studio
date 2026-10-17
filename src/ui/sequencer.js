@@ -2,80 +2,94 @@ import { TRACKS, state, setSelectedTrack, setCurrentSteps } from '../state/store
 import { makePat, makeNoteGrid, getPatIdx } from '../utils/helpers.js';
 import { initAudio, ctx } from '../audio/engine.js';
 import { triggerTrack } from '../audio/synth.js';
-import { getStepW } from '../audio/scheduler.js';
 import { updateSynthUI } from './panels.js';
 import { pushUndo } from '../utils/history.js';
 import { KICK_PRESETS, CLAP_PRESETS, HAT_PRESETS, OPENHAT_PRESETS } from '../utils/constants.js';
 
+// Calm track hues (design tokens) keyed by lane index; fallback = accent.
+const TRK_VARS = ['--trk-kick', '--trk-hat', '--trk-clap', '--trk-openhh', '--trk-bass', '--trk-acid', '--trk-syn1', '--trk-syn2'];
+const trackVar = ti => `var(${TRK_VARS[ti] || '--accent'})`;
+
+function velClass(v) { return v < 0.6 ? ' v-soft' : (v < 0.82 ? ' v-mid' : ''); }
+
 // ==================== CACHED DOM REFS ====================
-let elTrkList, elGridTracks, elBarLabels, elVelStrip;
+let elLanes, elRuler, elVelStrip;
 
 function cacheDom() {
-  elTrkList = document.getElementById('trkList');
-  elGridTracks = document.getElementById('gridTracks');
-  elBarLabels = document.getElementById('barLabels');
+  elLanes = document.getElementById('lanes');
+  elRuler = document.getElementById('ruler');
   elVelStrip = document.getElementById('velStrip');
 }
 
 // ==================== RENDER TRACKS ====================
 export function renderTracks() {
-  if (!elTrkList) cacheDom();
-  if (!elTrkList || !elGridTracks || !elBarLabels) return;
-  elTrkList.innerHTML = '';
-  elGridTracks.innerHTML = '';
-  elBarLabels.innerHTML = '';
-  const sw = getStepW();
+  if (!elLanes) cacheDom();
+  if (!elLanes || !elRuler) return;
+  const n = state.currentSteps;
+  elLanes.style.setProperty('--steps', n);
+  elRuler.style.setProperty('--steps', n);
+  elLanes.innerHTML = '';
+  elRuler.innerHTML = '';
 
-  for (let i = 0; i < state.currentSteps; i++) {
-    const b = document.createElement('div');
-    b.className = 'bar-lbl';
-    b.style.width = sw + 'px';
-    if (i % 4 === 0) b.textContent = (i / 4 + 1) + '.';
-    elBarLabels.appendChild(b);
+  // ruler
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    if (i % 4 === 0) { s.className = 'b'; s.textContent = (i / 4 + 1); }
+    elRuler.appendChild(s);
   }
 
+  const lbl = document.getElementById('laneHeadLbl');
+  if (lbl) lbl.textContent = `${TRACKS.length} piste${TRACKS.length > 1 ? 's' : ''} · ${state.currentKey || ''}`.trim();
+
   TRACKS.forEach((t, ti) => {
-    // Track row
-    const row = document.createElement('div');
-    row.className = 'trk-row' + (ti === state.selectedTrack ? ' sel' : '');
-    row.dataset.track = ti;
-    row.innerHTML = `<div class="trk-dot" style="background:${t.color};color:${t.color}"></div>
-      <div class="trk-name" style="color:${t.color}" data-track="${ti}">${t.name}</div>
-      <button class="tmb${t.muted ? ' on' : ''}" data-mute="${ti}">M</button>
-      <button class="tsl${t.soloed ? ' on' : ''}" data-solo="${ti}">S</button>
-      <input class="trk-vol" type="range" min="0" max="100" value="${Math.round(t.vol * 100)}" data-vol="${ti}">`;
-    elTrkList.appendChild(row);
+    const lane = document.createElement('div');
+    lane.className = 'lane' + (ti === state.selectedTrack ? ' sel' : '');
+    lane.dataset.track = ti;
+    lane.style.setProperty('--tc', trackVar(ti));
 
-    // Grid row
-    const gRow = document.createElement('div');
-    gRow.className = 'grid-trk-row';
-    gRow.dataset.track = ti;
-    gRow.style.width = (sw * state.currentSteps) + 'px';
+    const info = document.createElement('div');
+    info.className = 'info';
+    info.innerHTML = `<span class="dot"></span>
+      <div><div class="nm" data-track="${ti}">${t.name}</div><div class="ins">${instLabel(t)}</div></div>
+      <div class="ctl"><div class="ms"><button class="m${t.muted ? ' on' : ''}" data-mute="${ti}">M</button><button class="s${t.soloed ? ' on' : ''}" data-solo="${ti}">S</button></div>
+      <input type="range" class="slider vol-mini" min="0" max="100" value="${Math.round(t.vol * 100)}" data-vol="${ti}"></div>`;
+
+    const steps = document.createElement('div');
+    steps.className = 'steps';
     const pat = t.patterns[getPatIdx(t)];
-
-    for (let i = 0; i < state.currentSteps; i++) {
-      const s = document.createElement('div');
-      let cls = 'step';
-      if (i % 16 === 0) cls += ' b8';
-      else if (i % 4 === 0) cls += ' b4';
-      s.className = cls;
-      s.style.width = sw + 'px';
-      s.id = `s${ti}_${i}`;
+    for (let i = 0; i < n; i++) {
+      const cell = document.createElement('div');
       const act = i < pat.acts.length && pat.acts[i];
       const vel = i < pat.vels.length ? pat.vels[i] : 0.8;
-      if (act) {
-        s.classList.add('active');
-        s.style.background = t.color;
-        s.style.opacity = 0.55 + vel * 0.45;
-      }
-      gRow.appendChild(s);
+      cell.className = 'step' + (i % 4 === 0 ? ' beat' : '') + (act ? ' on' + velClass(vel) : '');
+      cell.id = `s${ti}_${i}`;
+      steps.appendChild(cell);
     }
-    elGridTracks.appendChild(gRow);
+    lane.appendChild(info);
+    lane.appendChild(steps);
+    elLanes.appendChild(lane);
   });
 
   renderVelStrip();
   renderPatBtns();
   updateSynthUI();
+}
+
+function instLabel(t) {
+  const w = t.sp?.wave;
+  if (w === 'kick') return KICK_PRESETS[t.kickPreset || 0]?.name || 'KICK';
+  if (w === 'clap') return CLAP_PRESETS[t.clapPreset || 0]?.name || 'CLAP';
+  if (w === 'hat') return HAT_PRESETS[t.hatPreset || 0]?.name || 'HAT';
+  if (w === 'openhat') return OPENHAT_PRESETS[t.hatPreset || 0]?.name || 'OPEN HH';
+  return ({ sawtooth: 'SAW', square: 'SQ', sine: 'SIN', triangle: 'TRI' })[w] || (w || '');
+}
+
+// apply on/velocity classes to one step cell
+function paintCell(el, act, vel) {
+  el.classList.toggle('on', act);
+  el.classList.remove('v-soft', 'v-mid');
+  if (act && vel < 0.6) el.classList.add('v-soft');
+  else if (act && vel < 0.82) el.classList.add('v-mid');
 }
 
 // ==================== UPDATE SINGLE GRID ROW ====================
@@ -87,9 +101,7 @@ function updateGridRow(ti) {
     if (!el) continue;
     const act = i < pat.acts.length && pat.acts[i];
     const vel = i < pat.vels.length ? pat.vels[i] : 0.8;
-    el.classList.toggle('active', act);
-    el.style.background = act ? t.color : '';
-    el.style.opacity = act ? 0.55 + vel * 0.45 : '';
+    paintCell(el, act, vel);
   }
 }
 
@@ -97,25 +109,24 @@ function updateGridRow(ti) {
 export function renderVelStrip() {
   if (!elVelStrip) elVelStrip = document.getElementById('velStrip');
   if (!elVelStrip) return;
-  elVelStrip.innerHTML = '';
   const t = TRACKS[state.selectedTrack];
+  elVelStrip.style.setProperty('--steps', state.currentSteps);
+  elVelStrip.style.setProperty('--tc', trackVar(state.selectedTrack));
+  elVelStrip.innerHTML = '';
   const pat = t.patterns[getPatIdx(t)];
-  const sw = getStepW();
-
   for (let i = 0; i < state.currentSteps; i++) {
     const act = i < pat.acts.length && pat.acts[i];
     const vel = i < pat.vels.length ? pat.vels[i] : 0.5;
-    const vb = document.createElement('div');
-    vb.className = 'vb' + (act ? ' on' : '');
-    vb.id = `vb_${i}`;
-    vb.style.width = (sw - 1) + 'px';
-    vb.style.height = Math.round(vel * 40 + 3) + 'px';
-    vb.style.background = t.color;
-    elVelStrip.appendChild(vb);
+    const b = document.createElement('i');
+    b.id = `vb_${i}`;
+    if (act) b.style.height = Math.round(vel * 44 + 4) + 'px';
+    else b.className = 'off';
+    elVelStrip.appendChild(b);
   }
+  const vn = document.getElementById('velTrkName');
+  if (vn) vn.textContent = t.name;
 }
 
-// ==================== UPDATE SINGLE VEL BAR ====================
 function updateVelBar(si) {
   const t = TRACKS[state.selectedTrack];
   const pat = t.patterns[getPatIdx(t)];
@@ -123,9 +134,8 @@ function updateVelBar(si) {
   if (!vb) return;
   const act = si < pat.acts.length && pat.acts[si];
   const vel = si < pat.vels.length ? pat.vels[si] : 0.5;
-  vb.className = 'vb' + (act ? ' on' : '');
-  vb.style.height = Math.round(vel * 40 + 3) + 'px';
-  vb.style.background = t.color;
+  vb.className = act ? '' : 'off';
+  vb.style.height = act ? Math.round(vel * 44 + 4) + 'px' : '';
 }
 
 // ==================== VELOCITY DRAG ====================
@@ -143,33 +153,12 @@ document.addEventListener('mousemove', e => {
   const pat = TRACKS[ti].patterns[getPatIdx(TRACKS[ti])];
   let v = Math.max(0.05, Math.min(1, sv - (e.clientY - sy) / 60));
   pat.vels[si] = v;
-  // Update only the single velocity bar being dragged
   const vb = document.getElementById(`vb_${si}`);
-  if (vb) {
-    vb.style.height = Math.round(v * 40 + 3) + 'px';
-  }
+  if (vb && pat.acts[si]) vb.style.height = Math.round(v * 44 + 4) + 'px';
   const el = document.getElementById(`s${ti}_${si}`);
-  if (el && pat.acts[si]) el.style.opacity = 0.55 + v * 0.45;
+  if (el && pat.acts[si]) paintCell(el, true, v);
 });
 document.addEventListener('mouseup', () => { velDrag.on = false; });
-
-// ==================== STEP TOGGLE ====================
-function toggleStep(ti, si) {
-  initAudio();
-  const t = TRACKS[ti];
-  const pat = t.patterns[getPatIdx(t)];
-  while (pat.acts.length <= si) { pat.acts.push(false); pat.vels.push(0.8); pat.probs.push(1); }
-  pat.acts[si] = !pat.acts[si];
-  const el = document.getElementById(`s${ti}_${si}`);
-  if (el) {
-    el.classList.toggle('active', pat.acts[si]);
-    el.style.background = pat.acts[si] ? t.color : '';
-    el.style.opacity = pat.acts[si] ? 0.55 + pat.vels[si] * 0.45 : '';
-  }
-  if (pat.acts[si] && !state.isPlaying) triggerTrack(ti, pat.vels[si], ctx.currentTime);
-  // Update only the single velocity bar
-  if (ti === state.selectedTrack) updateVelBar(si);
-}
 
 // ==================== DRAG-TO-PAINT ====================
 let paintState = { active: false, mode: null, trackIdx: null };
@@ -180,26 +169,19 @@ function handleGridPointerDown(e) {
   const [ti, si] = step.id.replace('s', '').split('_').map(Number);
 
   initAudio();
+  selectTrack(ti);
   const t = TRACKS[ti];
   const pat = t.patterns[getPatIdx(t)];
   while (pat.acts.length <= si) { pat.acts.push(false); pat.vels.push(0.8); pat.probs.push(1); }
 
   pushUndo();
-
-  // Determine paint mode: if step was off, we paint ON; if on, we paint OFF
   const wasActive = pat.acts[si];
   paintState = { active: true, mode: wasActive ? 'off' : 'on', trackIdx: ti, visited: new Set([si]) };
 
   pat.acts[si] = !wasActive;
-  const el = document.getElementById(`s${ti}_${si}`);
-  if (el) {
-    el.classList.toggle('active', pat.acts[si]);
-    el.style.background = pat.acts[si] ? t.color : '';
-    el.style.opacity = pat.acts[si] ? 0.55 + pat.vels[si] * 0.45 : '';
-  }
+  paintCell(step, pat.acts[si], pat.vels[si]);
   if (pat.acts[si] && !state.isPlaying) triggerTrack(ti, pat.vels[si], ctx.currentTime);
-  if (ti === state.selectedTrack) updateVelBar(si);
-
+  updateVelBar(si);
   e.preventDefault();
 }
 
@@ -221,22 +203,16 @@ function handleGridPointerMove(e) {
   const newState = paintState.mode === 'on';
   if (pat.acts[si] === newState) return;
   pat.acts[si] = newState;
-
-  step.classList.toggle('active', newState);
-  step.style.background = newState ? t.color : '';
-  step.style.opacity = newState ? 0.55 + pat.vels[si] * 0.45 : '';
-
-  if (ti === state.selectedTrack) updateVelBar(si);
+  paintCell(step, newState, pat.vels[si]);
+  updateVelBar(si);
 }
 
-function handleGridPointerUp() {
-  paintState.active = false;
-}
+function handleGridPointerUp() { paintState.active = false; }
 
 // ==================== TRACK SELECTION ====================
 export function selectTrack(ti) {
   setSelectedTrack(ti);
-  document.querySelectorAll('.trk-row').forEach((r, i) => r.classList.toggle('sel', i === ti));
+  document.querySelectorAll('.lane').forEach(l => l.classList.toggle('sel', +l.dataset.track === ti));
   renderVelStrip();
   renderPatBtns();
   updateSynthUI();
@@ -257,18 +233,19 @@ function toggleSolo(ti) {
 
 function setTrackVol(ti, v) { TRACKS[ti].vol = v / 100; }
 
-// ==================== PATTERN BUTTONS ====================
+// ==================== PATTERN BUTTONS (A–H) ====================
+const PAT_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 export function renderPatBtns() {
   const pb = document.getElementById('patBtns');
   if (!pb) return;
   pb.innerHTML = '';
   const t = TRACKS[state.selectedTrack];
   for (let i = 0; i < 8; i++) {
-    const b = document.createElement('div');
+    const b = document.createElement('button');
     const isActive = t.pats[i];
     const hasDat = t.patterns[i].acts.some(a => a);
-    b.className = 'pat-btn' + (isActive ? ' on' : hasDat ? ' has' : '');
-    b.textContent = i + 1;
+    b.className = 'pat' + (isActive ? ' on' : hasDat ? ' has' : '');
+    b.textContent = PAT_LABELS[i];
     b.addEventListener('click', () => switchPattern(i));
     pb.appendChild(b);
   }
@@ -285,8 +262,8 @@ export function switchPattern(i) {
 export function initStepButtons() {
   document.querySelectorAll('[data-steps]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const n = +btn.dataset.steps;
-      setCurrentSteps(n);
+      const num = +btn.dataset.steps;
+      setCurrentSteps(num);
       document.querySelectorAll('[data-steps]').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
       renderTracks();
@@ -336,14 +313,11 @@ export function clearPattern() {
   renderVelStrip();
 }
 
+let patternClipboard = null;
 export function copyPattern() {
   const t = TRACKS[state.selectedTrack];
   const pat = t.patterns[getPatIdx(t)];
-  patternClipboard = {
-    acts: [...pat.acts],
-    vels: [...pat.vels],
-    probs: [...pat.probs],
-  };
+  patternClipboard = { acts: [...pat.acts], vels: [...pat.vels], probs: [...pat.probs] };
 }
 
 export function pastePattern() {
@@ -357,8 +331,6 @@ export function pastePattern() {
   updateGridRow(state.selectedTrack);
   renderVelStrip();
 }
-
-let patternClipboard = null;
 
 export function addTrack() {
   const colors = ['#ff00aa', '#00ffaa', '#ffaa00', '#0055ff'];
@@ -402,17 +374,13 @@ function createPicker() {
   INSTRUMENT_CATEGORIES.forEach(cat => {
     const catDiv = document.createElement('div');
     catDiv.className = 'inst-cat';
-
     const hdr = document.createElement('div');
     hdr.className = 'inst-cat-hdr';
     hdr.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.name}`;
     catDiv.appendChild(hdr);
-
     const grid = document.createElement('div');
     grid.className = 'inst-cat-grid';
-
     if (cat.presets) {
-      // Drum category with presets
       cat.presets.forEach((preset, idx) => {
         const item = document.createElement('div');
         item.className = 'inst-item';
@@ -425,7 +393,6 @@ function createPicker() {
         grid.appendChild(item);
       });
     } else if (cat.items) {
-      // Synth category
       cat.items.forEach(s => {
         const item = document.createElement('div');
         item.className = 'inst-item';
@@ -436,37 +403,27 @@ function createPicker() {
         grid.appendChild(item);
       });
     }
-
     catDiv.appendChild(grid);
     pickerEl.appendChild(catDiv);
   });
 
-  // Handle clicks on items
   pickerEl.addEventListener('click', e => {
     const item = e.target.closest('.inst-item');
     if (!item) return;
     const ti = +pickerEl.dataset.trackIdx;
     const t = TRACKS[ti];
-    const wave = item.dataset.wave;
-    const color = item.dataset.color;
-
-    t.sp.wave = wave;
-    t.color = color;
+    t.sp.wave = item.dataset.wave;
+    t.color = item.dataset.color;
     t.name = item.dataset.instName;
-
-    if (item.dataset.presetKey) {
-      t[item.dataset.presetKey] = +item.dataset.presetIdx;
-    }
-
+    if (item.dataset.presetKey) t[item.dataset.presetKey] = +item.dataset.presetIdx;
     closePicker();
     renderTracks();
   });
 
   document.body.appendChild(pickerEl);
 
-  // Close on outside click
   document.addEventListener('mousedown', e => {
-    if (pickerEl && pickerEl.classList.contains('open') && !pickerEl.contains(e.target) && !e.target.closest('.trk-name')) {
+    if (pickerEl && pickerEl.classList.contains('open') && !pickerEl.contains(e.target) && !e.target.closest('.nm')) {
       closePicker();
     }
   });
@@ -476,8 +433,6 @@ function openPicker(ti, anchorEl) {
   if (!pickerEl) createPicker();
   const t = TRACKS[ti];
   pickerEl.dataset.trackIdx = ti;
-
-  // Highlight current instrument
   pickerEl.querySelectorAll('.inst-item').forEach(item => {
     let isActive = false;
     if (item.dataset.presetKey) {
@@ -487,72 +442,61 @@ function openPicker(ti, anchorEl) {
     }
     item.classList.toggle('active', isActive);
   });
-
-  // Position near the track name
   const rect = anchorEl.getBoundingClientRect();
   pickerEl.style.left = (rect.right + 8) + 'px';
   pickerEl.style.top = Math.min(rect.top, window.innerHeight - 440) + 'px';
   pickerEl.classList.add('open');
 }
 
-function closePicker() {
-  if (pickerEl) pickerEl.classList.remove('open');
-}
+function closePicker() { if (pickerEl) pickerEl.classList.remove('open'); }
 
 // ==================== EVENT DELEGATION ====================
 function initDelegation() {
   cacheDom();
 
-  // Grid: delegated click replaced by pointer events for drag-to-paint
-  elGridTracks.addEventListener('pointerdown', handleGridPointerDown);
+  // Steps: paint
+  elLanes.addEventListener('pointerdown', handleGridPointerDown);
   document.addEventListener('pointermove', handleGridPointerMove);
   document.addEventListener('pointerup', handleGridPointerUp);
 
-  // Grid: right-click for velocity edit
-  elGridTracks.addEventListener('contextmenu', e => {
-    e.preventDefault();
+  // Right-click velocity edit
+  elLanes.addEventListener('contextmenu', e => {
     const step = e.target.closest('.step');
     if (!step) return;
-    const [ti, si] = step.id.replace('s', '').split('_').map(Number);
-    startVelEdit(ti, si);
+    e.preventDefault();
+    const [ti] = step.id.replace('s', '').split('_').map(Number);
+    selectTrack(ti);
   });
 
-  // Velocity strip: delegated mousedown
-  elVelStrip.addEventListener('mousedown', e => {
-    const vb = e.target.closest('.vb');
-    if (!vb) return;
-    const si = Array.from(elVelStrip.children).indexOf(vb);
-    if (si >= 0) startVelDrag(state.selectedTrack, si, e);
-  });
-
-  // Track panel: delegated events
-  elTrkList.addEventListener('click', e => {
-    const nameEl = e.target.closest('.trk-name');
-    if (nameEl) {
-      const ti = +nameEl.dataset.track;
-      selectTrack(ti);
-      openPicker(ti, nameEl);
-      return;
-    }
-    const muteBtn = e.target.closest('.tmb');
+  // Lane info: select / instrument picker / mute / solo
+  elLanes.addEventListener('click', e => {
+    const muteBtn = e.target.closest('[data-mute]');
     if (muteBtn) { e.stopPropagation(); toggleMute(+muteBtn.dataset.mute); return; }
-    const soloBtn = e.target.closest('.tsl');
+    const soloBtn = e.target.closest('[data-solo]');
     if (soloBtn) { e.stopPropagation(); toggleSolo(+soloBtn.dataset.solo); return; }
+    const nameEl = e.target.closest('.nm');
+    if (nameEl) { const ti = +nameEl.dataset.track; selectTrack(ti); openPicker(ti, nameEl); return; }
+    if (e.target.closest('.step')) return; // handled by pointerdown
+    if (e.target.closest('.vol-mini')) return;
+    const lane = e.target.closest('.lane');
+    if (lane) selectTrack(+lane.dataset.track);
   });
 
-  elTrkList.addEventListener('input', e => {
-    const volInput = e.target.closest('.trk-vol');
+  elLanes.addEventListener('input', e => {
+    const volInput = e.target.closest('.vol-mini');
     if (volInput) { e.stopPropagation(); setTrackVol(+volInput.dataset.vol, volInput.value); }
   });
+
+  // Velocity strip drag
+  elVelStrip.addEventListener('mousedown', e => {
+    const bar = e.target.closest('i');
+    if (!bar || !elVelStrip.contains(bar)) return;
+    const si = Array.from(elVelStrip.children).indexOf(bar);
+    if (si >= 0) startVelDrag(state.selectedTrack, si, e);
+  });
 }
 
-function startVelEdit(ti, si) {
-  const pat = TRACKS[ti].patterns[getPatIdx(TRACKS[ti])];
-  if (!pat.acts[si]) return;
-  selectTrack(ti);
-}
-
-// ==================== INIT SEQUENCER CONTROLS ====================
+// ==================== INIT ====================
 export function initSequencer() {
   initStepButtons();
   initDelegation();
@@ -560,4 +504,9 @@ export function initSequencer() {
   document.getElementById('btnMutate').addEventListener('click', mutatePattern);
   document.getElementById('btnClear').addEventListener('click', clearPattern);
   document.getElementById('btnAddTrack').addEventListener('click', addTrack);
+  // Quantize / Gen mélodie : ces outils vivent sur l'écran Piano Roll (boutons #btnQuantize / #btnGenMelody).
+  const q = document.getElementById('btnSeqQuant');
+  const g = document.getElementById('btnSeqGen');
+  if (q) q.addEventListener('click', () => document.querySelector('.htab[data-view="piano"]')?.click());
+  if (g) g.addEventListener('click', () => document.querySelector('.htab[data-view="piano"]')?.click());
 }

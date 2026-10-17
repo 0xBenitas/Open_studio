@@ -1,0 +1,84 @@
+/* ============================================================
+   OPEN STUDIO — Design tokens
+   Dark-but-calm. Ink grays, one calm accent, softened track hues.
+   All colours in oklch so hue/lightness stay harmonious.
+   ============================================================ */
+
+:root {
+  /* ---- Surfaces (deep → raised) ---- */
+  --bg-app:     oklch(0.165 0.006 254);   /* app backdrop            */
+  --bg-inset:   oklch(0.135 0.006 254);   /* wells: grid, canvas     */
+  --bg-panel:   oklch(0.205 0.006 254);   /* panels, rails           */
+  --bg-raised:  oklch(0.245 0.007 254);   /* cards, inputs, chips     */
+  --bg-hover:   oklch(0.295 0.008 254);   /* hover / pressed          */
+  --line:       oklch(0.315 0.008 254);   /* visible borders          */
+  --line-soft:  oklch(0.255 0.007 254);   /* hairlines                */
+
+  /* ---- Ink ---- */
+  --ink:        oklch(0.955 0.004 254);   /* primary text             */
+  --ink-2:      oklch(0.760 0.008 254);   /* secondary text           */
+  --ink-3:      oklch(0.600 0.010 254);   /* labels, captions         */
+  --ink-4:      oklch(0.460 0.010 254);   /* faint / disabled         */
+
+  /* ---- Accent (calm azure) ---- */
+  --accent:      oklch(0.705 0.118 248);
+  --accent-bright: oklch(0.78 0.13 248);
+  --accent-dim:  oklch(0.705 0.118 248 / 0.16);
+  --accent-line: oklch(0.705 0.118 248 / 0.40);
+  --accent-ink:  oklch(0.18 0.03 248);    /* text on accent fill      */
+
+  /* ---- Functional ---- */
+  --rec:   oklch(0.635 0.165 25);         /* record / destructive     */
+  --rec-dim: oklch(0.635 0.165 25 / 0.16);
+  --warn:  oklch(0.78 0.11 75);           /* solo / caution           */
+  --good:  oklch(0.74 0.10 158);
+
+  /* ---- Track hues (soft, shared L≈0.75 C≈0.09) ---- */
+  --trk-kick:   oklch(0.745 0.095 28);    /* coral   */
+  --trk-hat:    oklch(0.815 0.090 96);    /* gold    */
+  --trk-clap:   oklch(0.775 0.095 56);    /* amber   */
+  --trk-openhh: oklch(0.745 0.090 332);   /* pink    */
+  --trk-bass:   oklch(0.705 0.105 288);   /* violet  */
+  --trk-acid:   oklch(0.770 0.095 156);   /* mint    */
+  --trk-syn1:   oklch(0.745 0.095 236);   /* sky     */
+  --trk-syn2:   oklch(0.720 0.105 8);     /* rose    */
+
+  /* ---- Type ---- */
+  --font-sans: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --t-display: 30px;   /* big numerics, hero          */
+  --t-title:   18px;   /* view / panel titles         */
+  --t-sub:     15px;   /* sub-headers                 */
+  --t-body:    14px;   /* body, controls              */
+  --t-label:   12px;   /* tracked uppercase labels    */
+  --t-value:   13px;   /* mono readouts               */
+  --t-micro:   11px;   /* dense chrome (min size)     */
+
+  --fw-reg: 400;
+  --fw-med: 500;
+  --fw-semi: 600;
+  --fw-bold: 700;
+
+  /* ---- Spacing scale ---- */
+  --s-1: 2px;  --s-2: 4px;  --s-3: 6px;  --s-4: 8px;
+  --s-5: 12px; --s-6: 16px; --s-7: 20px; --s-8: 24px;
+  --s-9: 32px; --s-10: 40px; --s-12: 56px;
+
+  /* ---- Radii ---- */
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* ---- Shadows ---- */
+  --shadow-1: 0 1px 2px rgba(0,0,0,.30);
+  --shadow-2: 0 6px 20px rgba(0,0,0,.36);
+  --shadow-pop: 0 18px 50px rgba(0,0,0,.55);
+  --glow-accent: 0 0 0 1px var(--accent-line), 0 4px 18px oklch(0.705 0.118 248 / 0.30);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(.4,0,.2,1);
+  --dur: .16s;
+}

@@ -79,7 +79,7 @@ export function initHeader() {
   // Key selector
   document.getElementById('keyDisplay').addEventListener('click', () => {
     cycleKey();
-    document.getElementById('keyDisplay').textContent = state.currentKey + ' \u25B8';
+    document.getElementById('keyVal').textContent = state.currentKey;
     if (document.getElementById('vpiano').classList.contains('on')) renderPianoRoll();
   });
 
@@ -150,7 +150,7 @@ function refreshUI() {
   document.getElementById('swingVal').textContent = state.swingAmt;
   document.getElementById('masterVol').value = Math.round(state.masterVolume * 100);
   document.getElementById('mvVal').textContent = Math.round(state.masterVolume * 100);
-  document.getElementById('keyDisplay').textContent = state.currentKey + ' \u25B8';
+  document.getElementById('keyVal').textContent = state.currentKey;
   renderTracks();
   updateSynthUI();
 }
@@ -160,9 +160,9 @@ function showView(v, btn) {
   stopVU();
 
   document.querySelectorAll('.view').forEach(el => el.classList.remove('on'));
-  document.querySelectorAll('.htab').forEach(b => b.classList.remove('on'));
   document.getElementById('v' + v).classList.add('on');
-  btn.classList.add('on');
+  // sync les deux barres (viewnav desktop + botnav mobile) par data-view
+  document.querySelectorAll('.htab').forEach(b => b.classList.toggle('on', b.dataset.view === v));
   if (v === 'piano') renderPianoRoll();
   if (v === 'mix') { renderMixer(); startVU(); }
   if (v === 'live') renderLive();
